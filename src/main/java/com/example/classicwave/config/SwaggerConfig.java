@@ -12,8 +12,8 @@ public class SwaggerConfig {
     public OpenAPI openAPI() {
         return new OpenAPI()
                 .info(new Info()
-                        .title("MelLearn API")
-                        .description("음악으로 즐기는 인공지능 기반 학습 서비스 제공")
+                        .title("ClassicWave API")
+                        .description("고전 문학/소설의 전자책과 퀴즈 제공")
                         .version("1.0.0"));
     }
 

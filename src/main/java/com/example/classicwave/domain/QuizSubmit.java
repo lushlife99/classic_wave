@@ -6,6 +6,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -19,7 +20,10 @@ public class QuizSubmit {
     private Long id;
     @ManyToOne(fetch = FetchType.LAZY)
     private Member member;
-    @OneToMany(mappedBy = "quizSubmit")
-    private List<Quiz> quizList;
-    
+    @ManyToOne(fetch = FetchType.LAZY)
+    private QuizList quizList;
+
+    @ElementCollection(fetch = FetchType.LAZY) @Builder.Default
+    private List<Integer> submitAnswerList = new ArrayList<>(4);
+    private double score;
 }

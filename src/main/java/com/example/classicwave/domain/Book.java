@@ -23,7 +23,7 @@ public class Book {
     private String name;
     private Long likes;
 
-    @OneToMany(mappedBy = "book")
+    @OneToMany(mappedBy = "book") @Builder.Default
     private List<Scene> sceneList = new ArrayList<>();
 
 }

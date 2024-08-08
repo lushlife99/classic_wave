@@ -21,7 +21,7 @@ public class Member {
     @Column(unique = true)
     private String userId;
     private String password;
-    @OneToMany(mappedBy = "member")
+    @OneToMany(mappedBy = "member") @Builder.Default
     private List<QuizSubmit> quizSubmitList = new ArrayList<>();
 
 }

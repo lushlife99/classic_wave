@@ -21,6 +21,7 @@ public enum ErrorCode {
 
     /* 409 CONFLICT : Resource 의 현재 상태와 충돌. 보통 중복된 데이터 존재 */
     ALREADY_EXIST_MEMBER(HttpStatus.CONFLICT, "이미 존재하는 Id입니다"),
+    ALREADY_POSTED_CLASSIC(HttpStatus.CONFLICT, "이미 신청된 도서입니다"),
 
     /* 500 INTERNAL_SERVER_ERROR : 서버오류 */
     INTERNAL_SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "서버 오류"),

@@ -20,6 +20,7 @@ public class Book {
     private Long id;
 
     private String isbnId;
+    private String authorName;
     private String name;
     private Long likes;
 

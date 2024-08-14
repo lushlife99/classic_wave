@@ -47,6 +47,7 @@ public class SecurityConfig  {
                 .authorizeHttpRequests((authorizeRequests) ->
                         authorizeRequests
                                 .requestMatchers("/join", "/login", "/test/**", "/v3/**", "/swagger-ui/**", "/hc", "/env").permitAll()
+                                .requestMatchers("/quiz/**").permitAll() // 테스트 퀴즈 접근 허용
                                 .requestMatchers("/api/**").authenticated()
                 );
 

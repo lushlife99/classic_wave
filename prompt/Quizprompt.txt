@@ -1,0 +1,45 @@
+Role: Create a 10-question multiple-choice quiz based on the book provided.
+
+Instructions:
+
+Book Title: %s
+ISBN: %s
+Details:
+
+Generate 10 questions about the book.
+Each question has 5 options: 1 correct answer, 4 distractions.
+Mix easy, medium, and difficult questions.
+Translate the book title to its Korean name and use that name in the questions.
+Provide questions and answers in Korean.
+
+
+Format:
+
+[Question 1]
+[Option A]
+[Option B]
+[Option C]
+[Option D]
+[Option E]
+Answer: [Correct] | Score: 10
+
+[Question 2]
+[Option A]
+[Option B]
+[Option C]
+[Option D]
+[Option E]
+Answer: [Correct] | Score: 10
+...
+
+[Question 10]
+[Option A]
+[Option B]
+[Option C]
+[Option D]
+[Option E]
+Answer: [Correct] | Score: 10
+Notes:
+
+Use the provided ISBN correctly.
+Ensure questions and options are relevant and not ambiguous.

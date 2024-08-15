@@ -5,9 +5,6 @@ import com.example.classicwave.dto.response.SceneListResponse;
 import com.example.classicwave.repository.BookRepository;
 import com.example.classicwave.repository.SceneRepository;
 import lombok.RequiredArgsConstructor;
-import org.springframework.ai.chat.client.ChatClient;
-import org.springframework.ai.chat.messages.Message;
-import org.springframework.ai.chat.messages.UserMessage;
 
 import org.springframework.ai.chat.model.Generation;
 import org.springframework.ai.chat.prompt.Prompt;
@@ -16,8 +13,6 @@ import org.springframework.ai.chat.prompt.SystemPromptTemplate;
 import org.springframework.ai.converter.BeanOutputConverter;
 import org.springframework.ai.openai.OpenAiChatModel;
 import org.springframework.ai.openai.OpenAiChatOptions;
-import org.springframework.ai.openai.api.OpenAiApi;
-import org.springframework.ai.parser.BeanOutputParser;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.Resource;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -34,7 +29,7 @@ public class CartoonCreationService {
 
     @Value("classpath:/prompts/scene-generation-system-message.st")
     private Resource sceneSystemPrompt;
-    @Value("classpath:/prompts/scene-generation-user-message.st")
+    @Value("classpath:/prompts/book-info-user-message.st")
     private Resource sceneUserPrompt;
 
     private final BookRepository bookRepository;

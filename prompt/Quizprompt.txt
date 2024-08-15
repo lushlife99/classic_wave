@@ -12,7 +12,6 @@ Mix easy, medium, and difficult questions.
 Translate the book title to its Korean name and use that name in the questions.
 Provide questions and answers in Korean.
 
-
 Format:
 
 [Question 1]

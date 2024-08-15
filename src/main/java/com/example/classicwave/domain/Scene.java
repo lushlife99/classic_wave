@@ -19,6 +19,7 @@ public class Scene {
     @ManyToOne(fetch = FetchType.LAZY)
     private Book book;
     private String photoId;
+    private String description;
     @Lob
-    private String summary;
+    private String plotSummary;
 }

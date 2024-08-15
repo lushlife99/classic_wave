@@ -1,5 +1,6 @@
 package com.example.classicwave.controller;
 
+import com.example.classicwave.dto.response.SceneListResponse;
 import com.example.classicwave.service.CartoonCreationService;
 import com.example.classicwave.service.ClassicBookService;
 import com.example.classicwave.dto.request.EBookRequest;
@@ -25,7 +26,7 @@ public class ClassicBookController {
     }
 
     @PostMapping("/test")
-    public List<Generation> test(@RequestParam String title, @RequestParam String isbnId) {
+    public SceneListResponse test(@RequestParam String title, @RequestParam String isbnId) {
         return cartoonCreationService.getSceneListByBookInfo(title, isbnId);
     }
 }

@@ -13,7 +13,7 @@ import org.springframework.stereotype.Service;
 public class ClassicBookService {
 
     private final BookRepository bookRepository;
-    private final RedisTemplate<String, Object> redisTemplate;
+    private final RedisTemplate<String, EBookRequest> redisTemplate;
     private final static String ebookRequestKey = "ebookRequest";
     public void postToScheduler(EBookRequest bookRequest) {
         String key = ebookRequestKey + ":" + bookRequest.getIsbnId();
@@ -21,6 +21,6 @@ public class ClassicBookService {
         if(redisTemplate.hasKey(key))
             throw new CustomException(ErrorCode.ALREADY_POSTED_CLASSIC);
 
-        redisTemplate.opsForSet().add(key, bookRequest.getName());
+        redisTemplate.opsForSet().add(key, bookRequest);
     }
 }

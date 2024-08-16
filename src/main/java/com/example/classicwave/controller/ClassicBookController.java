@@ -25,8 +25,8 @@ public class ClassicBookController {
         return ResponseEntity.ok().build();
     }
 
-    @PostMapping("/test")
-    public SceneListResponse test(@RequestParam String title, @RequestParam String isbnId) {
-        return cartoonCreationService.getSceneListByBookInfo(title, isbnId);
-    }
+//    @PostMapping("/test")
+//    public SceneListResponse test(@RequestParam String title, @RequestParam String isbnId) {
+//        return cartoonCreationService.getSceneListByBookInfo(title, isbnId);
+//    }
 }

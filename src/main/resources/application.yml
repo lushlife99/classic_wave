@@ -3,6 +3,18 @@ jwt:
   refresh-expiration-time: 259200000 # 3days
   access-expiration-time: 3600000 # 1hour
 
+cloud:
+  aws:
+    s3:
+      bucket: classic-wave
+    credentials:
+      access-key: AKIA3FLD453VACPUL7AX
+      secret-key: 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
+    stack:
+      auto: false
+    region:
+      static: ap-northeast-2
+
 spring:
   main:
     allow-bean-definition-overriding: true
@@ -16,15 +28,21 @@ spring:
     driver-class-name: com.mysql.cj.jdbc.Driver
     url: jdbc:mysql://localhost:3306/classic_wave?serverTimezone=Asia/Seoul&useLegacyDatetimeCode=false&characterEncoding=UTF-8
     username: root
-    password: Lushlife99!
+    password: 1234
   jpa:
     hibernate:
-      ddl-auto: create
+      ddl-auto: update
     properties:
       hibernate:
         format_sql: true
     open-in-view: false
   ai:
+    stabilityai:
+      api-key: sk-0wCRrCCStYZSbj4FRGIk1hOqAWPQyJ6bkiXfLkBAKwfcB0Nv
+      image:
+        options:
+          width: 1024
+          height: 512
     openai:
       api-key: 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
 

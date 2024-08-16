@@ -21,6 +21,7 @@ public class Book {
 
     private String isbnId;
     private String authorName;
+    @Column(unique = true)
     private String name;
     private Long likes;
 

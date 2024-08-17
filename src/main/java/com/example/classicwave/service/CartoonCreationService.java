@@ -10,12 +10,8 @@ import com.example.classicwave.openFeign.gutenberg.GutenbergApiClient;
 import com.example.classicwave.openFeign.gutenberg.response.BookResult;
 import com.example.classicwave.openFeign.gutenberg.response.BookSearchResponse;
 import com.example.classicwave.repository.BookRepository;
-import com.example.classicwave.repository.SceneRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.ai.chat.client.ChatClient;
-import org.springframework.ai.chat.messages.Message;
-import org.springframework.ai.chat.messages.UserMessage;
 
 import org.springframework.ai.chat.model.Generation;
 import org.springframework.ai.chat.prompt.Prompt;
@@ -29,12 +25,10 @@ import org.springframework.ai.openai.OpenAiAudioSpeechModel;
 import org.springframework.ai.openai.OpenAiAudioSpeechOptions;
 import org.springframework.ai.openai.OpenAiChatModel;
 import org.springframework.ai.openai.OpenAiChatOptions;
-import org.springframework.ai.openai.api.OpenAiApi;
 import org.springframework.ai.openai.api.OpenAiAudioApi;
 import org.springframework.ai.openai.audio.speech.Speech;
 import org.springframework.ai.openai.audio.speech.SpeechPrompt;
 import org.springframework.ai.openai.audio.speech.SpeechResponse;
-import org.springframework.ai.parser.BeanOutputParser;
 import org.springframework.ai.stabilityai.StabilityAiImageModel;
 import org.springframework.ai.stabilityai.StyleEnum;
 import org.springframework.ai.stabilityai.api.StabilityAiImageOptions;
@@ -45,14 +39,12 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 
 @Service
@@ -72,7 +64,6 @@ public class CartoonCreationService {
     private final S3FileUploadService s3Service;
     private final GutenbergApiClient gutenbergApiClient;
     private final SceneService sceneService;
-    private final SceneRepository sceneRepository;
     private final OpenAiAudioSpeechModel audioSpeechModel;
     private final StabilityAiImageModel imageModel;
     private final OpenAiChatModel openAiChatModel;
@@ -92,15 +83,9 @@ public class CartoonCreationService {
             SceneListResponse sceneListResponse = getSceneListByBookInfo(book);
 
             // 3. Search copyright this book
-            String urlEncodedQuery = " ";
-            try {
-                urlEncodedQuery = URLEncoder.encode(sceneListResponse.bookTitle(), StandardCharsets.UTF_8.toString())
-                        .replace("+", "%20");
 
-            } catch (UnsupportedEncodingException e) {
-                log.error("url encoding error in" + book.getName());
-                return;
-            }
+            String urlEncodedQuery = URLEncoder.encode(sceneListResponse.bookTitle(), StandardCharsets.UTF_8)
+                        .replace("+", "%20");
 
             BookSearchResponse bookSearchResponse = gutenbergApiClient.searchBooks(urlEncodedQuery, Boolean.toString(false));
             List<BookResult> bookResults = bookSearchResponse.getResults();
@@ -125,7 +110,6 @@ public class CartoonCreationService {
 
     public SceneListResponse getSceneListByBookInfo(Book book) {
 
-        List<Scene> sceneList = new ArrayList<>();
         BeanOutputConverter<SceneListResponse> outputConverter = new BeanOutputConverter<>(SceneListResponse.class);
         PromptTemplate userPrompt = getUserPrompt(book.getName(), book.getIsbnId(), outputConverter.getFormat());
         SystemPromptTemplate systemPrompt = new SystemPromptTemplate(sceneSystemPrompt);
@@ -134,14 +118,13 @@ public class CartoonCreationService {
                         .withMaxTokens(4096)
                         .build());
         Generation result = openAiChatModel.call(prompt).getResult();
-        SceneListResponse sceneListResponse = outputConverter.convert(result.getOutput().getContent());
-        return sceneListResponse;
+        return outputConverter.convert(result.getOutput().getContent());
     }
 
     public List<ImageGeneration> generateImages(SceneListResponse sceneListResponse) {
         List<String> prompts = sceneListResponse.sceneResponseList().stream()
                 .map(SceneResponse::description)
-                .collect(Collectors.toList());
+                .toList();
 
         List<ImageGeneration> imageResults = new ArrayList<>();
 
@@ -162,7 +145,7 @@ public class CartoonCreationService {
     public List<Speech> generateAudios(SceneListResponse sceneListResponse) {
         List<String> prompts = sceneListResponse.sceneResponseList().stream()
                 .map(SceneResponse::plotSummary)
-                .collect(Collectors.toList());
+                .toList();
 
         List<Speech> speechResult = new ArrayList<>();
 
@@ -183,7 +166,6 @@ public class CartoonCreationService {
     }
 
     private PromptTemplate getUserPrompt(String title, String isbnId, String format) {
-        PromptTemplate promptTemplate = new PromptTemplate(sceneUserPrompt, Map.of("title", title, "isbnId", isbnId, "format", format));
-        return promptTemplate;
+        return new PromptTemplate(sceneUserPrompt, Map.of("title", title, "isbnId", isbnId, "format", format));
     }
 }

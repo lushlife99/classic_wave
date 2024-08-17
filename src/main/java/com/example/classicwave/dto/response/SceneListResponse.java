@@ -4,13 +4,9 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import java.util.List;
 
 public record SceneListResponse(
-        @JsonProperty(required = true, value = "scene-list") List<SceneResponse> sceneResponseList
+        @JsonProperty(required = true, value = "total of 10 scene-list") List<SceneResponse> sceneResponseList,
+        @JsonProperty(required = true, value = "book-title") String bookTitle
         ) {
-    public record SceneResponse(
-            @JsonProperty(required = true, value = "scene-description") String description,
-            @JsonProperty(required = true, value = "plot-summary") String plotSummary
-    ) {
 
-    }
 
 }

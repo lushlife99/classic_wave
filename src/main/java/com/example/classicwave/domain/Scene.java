@@ -22,4 +22,5 @@ public class Scene {
     private String description;
     @Lob
     private String plotSummary;
+
 }

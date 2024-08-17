@@ -1,6 +1,7 @@
 package com.example.classicwave.domain;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -24,8 +25,12 @@ public class Book {
     @Column(unique = true)
     private String name;
     private Long likes;
+    @NotNull
+    private String folderName;
 
-    @OneToMany(mappedBy = "book") @Builder.Default
+    @OneToMany(mappedBy = "book")
+    @OrderColumn(name = "scene_order")
+    @Builder.Default
     private List<Scene> sceneList = new ArrayList<>();
 
 }

@@ -1,14 +1,24 @@
 package com.example.classicwave.service;
 
 import com.amazonaws.services.s3.AmazonS3Client;
+import com.amazonaws.services.s3.model.GetObjectRequest;
 import com.amazonaws.services.s3.model.ObjectMetadata;
+import com.amazonaws.services.s3.model.S3Object;
+import com.example.classicwave.domain.Book;
+import com.example.classicwave.domain.Scene;
+import com.example.classicwave.error.CustomException;
+import com.example.classicwave.error.ErrorCode;
+import com.example.classicwave.repository.BookRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.codec.binary.Base64;
+import org.apache.coyote.BadRequestException;
 import org.springframework.ai.image.Image;
 import org.springframework.ai.image.ImageGeneration;
 import org.springframework.ai.openai.audio.speech.Speech;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.io.InputStreamResource;
+import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Service;
 
 import java.io.ByteArrayInputStream;
@@ -24,11 +34,24 @@ import java.util.List;
 public class S3FileUploadService {
 
     private final AmazonS3Client amazonS3Client;
+    private final BookRepository bookRepository;
 
     @Value("${cloud.aws.s3.bucket}")
     private String bucket;
 
     private final static String AUDIO_FILE_PREFIX = "audio";
+
+    public Resource getImage(String folderName, String fileName) {
+        S3Object imageObject = amazonS3Client.getObject(new GetObjectRequest(bucket, folderName + "/" + fileName));
+        InputStream imageInputStream = imageObject.getObjectContent();
+        return new InputStreamResource(imageInputStream);
+    }
+
+    public Resource getAudio(String folderName, String fileName) {
+        S3Object imageObject = amazonS3Client.getObject(new GetObjectRequest(bucket, folderName + "/" + fileName));
+        InputStream imageInputStream = imageObject.getObjectContent();
+        return new InputStreamResource(imageInputStream);
+    }
 
     public void uploadImages(List<ImageGeneration> imageResults, String folderName) throws IOException {
         for (int i = 0; i < imageResults.size(); i++) {
@@ -45,7 +68,6 @@ public class S3FileUploadService {
             String fileName = i + ".png";
             String s3Key = folderName + "/" + fileName;
 
-            // S3에 업로드
             InputStream inputStream = new ByteArrayInputStream(imageBytes);
             ObjectMetadata metadata = new ObjectMetadata();
             metadata.setContentLength(imageBytes.length);

@@ -1,6 +1,7 @@
 package com.example.classicwave.service;
 
 import com.example.classicwave.domain.Book;
+import com.example.classicwave.dto.domain.BookDto;
 import com.example.classicwave.dto.request.EBookRequest;
 import com.example.classicwave.error.CustomException;
 import com.example.classicwave.error.ErrorCode;
@@ -8,7 +9,6 @@ import com.example.classicwave.repository.BookRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
@@ -25,6 +25,11 @@ public class BookService {
             throw new CustomException(ErrorCode.ALREADY_POSTED_CLASSIC);
 
         redisTemplate.opsForSet().add(key, bookRequest);
+    }
+
+    public BookDto getBookMetadata(Long bookId) {
+        Book book = bookRepository.findById(bookId).orElseThrow(() -> new CustomException(ErrorCode.BAD_REQUEST));
+        return new BookDto(book);
     }
 
     @Transactional

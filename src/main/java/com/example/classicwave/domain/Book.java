@@ -26,7 +26,6 @@ public class Book {
     private String authorName;
     @Column(unique = true)
     private String name;
-    private Long likes;
     @NotNull
     private String folderName;
 

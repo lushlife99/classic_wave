@@ -4,16 +4,9 @@ import com.amazonaws.services.s3.AmazonS3Client;
 import com.amazonaws.services.s3.model.GetObjectRequest;
 import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.amazonaws.services.s3.model.S3Object;
-import com.example.classicwave.domain.Book;
-import com.example.classicwave.domain.Scene;
-import com.example.classicwave.error.CustomException;
-import com.example.classicwave.error.ErrorCode;
-import com.example.classicwave.repository.BookRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.codec.binary.Base64;
-import org.apache.coyote.BadRequestException;
-import org.springframework.ai.image.Image;
 import org.springframework.ai.image.ImageGeneration;
 import org.springframework.ai.openai.audio.speech.Speech;
 import org.springframework.beans.factory.annotation.Value;
@@ -24,8 +17,6 @@ import org.springframework.stereotype.Service;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.URL;
-import java.nio.file.Paths;
 import java.util.List;
 
 @Service
@@ -34,7 +25,6 @@ import java.util.List;
 public class S3FileUploadService {
 
     private final AmazonS3Client amazonS3Client;
-    private final BookRepository bookRepository;
 
     @Value("${cloud.aws.s3.bucket}")
     private String bucket;

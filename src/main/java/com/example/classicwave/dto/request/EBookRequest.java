@@ -19,7 +19,6 @@ public class EBookRequest {
         return Book.builder()
                 .name(this.getName())
                 .isbnId(this.getIsbnId())
-                .likes(0L)
                 .folderName(UUID.randomUUID().toString())
                 .build();
     }

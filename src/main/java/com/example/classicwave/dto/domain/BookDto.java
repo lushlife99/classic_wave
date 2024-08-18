@@ -24,6 +24,7 @@ public class BookDto {
     private String name;
     private Long likes;
     private String folderName;
+    @Builder.Default
     private List<SceneDto> sceneList = new ArrayList<>();
 
     public BookDto(Book book) {

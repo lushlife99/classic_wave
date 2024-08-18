@@ -79,6 +79,7 @@ public class BookService {
     /**
      *  ToDo
      *
+     *  popular paging
      *  페이징 쿼리최적화
      *  DTO에 바로 매핑
      */
@@ -88,7 +89,8 @@ public class BookService {
 
         Page<Book> books;
         if (searchCond == SearchCond.popular) {
-            books = bookRepository.findAllByOrderByLikesDesc(pageable);
+//            books = bookRepository.findAllByOrderByLikesDesc(pageable);
+            books = null;
         } else {
             books = bookRepository.findAllByOrderByCreatedTimeDesc(pageable);
         }
@@ -98,6 +100,12 @@ public class BookService {
                 .toList();
 
         return new PageImpl<>(bookDtoList, pageable, books.getTotalElements());
+    }
+
+
+    public void createTestBook(EBookRequest eBookRequest) {
+        Book entity = eBookRequest.toEntity();
+        bookRepository.save(entity);
     }
 
 }

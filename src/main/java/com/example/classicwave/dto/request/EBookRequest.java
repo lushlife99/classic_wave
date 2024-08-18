@@ -13,15 +13,12 @@ import java.util.UUID;
 public class EBookRequest {
 
     private String isbnId;
-    private String authorName;
     private String name;
 
     public Book toEntity() {
         return Book.builder()
-                .authorName(this.getAuthorName())
                 .name(this.getName())
                 .isbnId(this.getIsbnId())
-                .likes(0L)
                 .folderName(UUID.randomUUID().toString())
                 .build();
     }

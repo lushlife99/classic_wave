@@ -9,6 +9,8 @@ import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -37,6 +39,18 @@ public class AuthController {
     @Operation(summary = "jwt 재발급", description = "jwt - access, refresh 토큰 재발급")
     public TokenInfo reIssueJwt(HttpServletRequest request, HttpServletResponse response) {
         return authService.reIssueToken(request, response);
+    }
+
+    // 테스트용
+    @GetMapping("/current-user")
+    @Operation(summary = "현재 사용자 검증", description = "현재 로그인한 사용자의 정보를 표시하는 테스트 API 입니다.")
+    public String getCurrentUser() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication != null && authentication.isAuthenticated()) {
+            return "현재 사용자: " + authentication.getName();
+        } else {
+            return "인증되지 않은 사용자";
+        }
     }
 
 }

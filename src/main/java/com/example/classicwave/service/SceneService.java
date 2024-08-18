@@ -15,7 +15,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -27,9 +26,7 @@ public class SceneService {
     public List<Scene> saveSceneList(Book book, SceneListResponse sceneListResponse) {
         List<SceneResponse> sceneResponses = sceneListResponse.sceneResponseList();
         List<Scene> sceneList = new ArrayList<>();
-        for (int i = 0; i < sceneResponses.size(); i++) {
-            SceneResponse sceneResponse = sceneResponses.get(i);
-
+        for (SceneResponse sceneResponse : sceneResponses) {
             Scene scene = sceneResponse.toEntity(book);
             sceneList.add(scene);
         }

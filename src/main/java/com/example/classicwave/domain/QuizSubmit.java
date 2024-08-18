@@ -25,5 +25,5 @@ public class QuizSubmit {
 
     @ElementCollection(fetch = FetchType.LAZY) @Builder.Default
     private List<Integer> submitAnswerList = new ArrayList<>(4);
-    private double score;
+    private int score;
 }

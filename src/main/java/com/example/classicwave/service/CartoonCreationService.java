@@ -81,6 +81,7 @@ public class CartoonCreationService {
 
             // 2. Create SceneList to asking GPT model
             SceneListResponse sceneListResponse = getSceneListByBookInfo(book);
+            book.setAuthorName(sceneListResponse.author());
 
             // 3. Search copyright this book
 

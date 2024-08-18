@@ -22,8 +22,8 @@ public class BookDto {
     private String isbnId;
     private String authorName;
     private String name;
-    private Long likes;
     private String folderName;
+    @Builder.Default
     private List<SceneDto> sceneList = new ArrayList<>();
 
     public BookDto(Book book) {
@@ -31,7 +31,6 @@ public class BookDto {
         this.isbnId = book.getIsbnId();
         this.authorName = book.getAuthorName();
         this.name = book.getName();
-        this.likes = book.getLikes();
         this.folderName = book.getFolderName();
         for (Scene scene : book.getSceneList()) {
             this.sceneList.add(new SceneDto(scene));

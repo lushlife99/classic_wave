@@ -3,6 +3,7 @@
 유저가 책 이름을 제공하면 책의 제목에 맞는 그림책을 만들기 위한 정보들을 제공해야 해.
 너는 json형식으로 결과를 반환해야해
 bookTitle에 책의 잘 알려진 영문 이름을 알려줘.
+Author에는 책 원작자의 영문 이름을 알려줘.
 10개의 description과 plotSummary를 생성해줘.
 description을 가지고 이미지 생성을 할거야.
 그러므로 description을 생성할 때는 최대한 간결하고 정확하게 이미지를 묘사해야해.
@@ -22,6 +23,8 @@ isbnId: 9780143131847
 Output e.g)
 
 Book Title : frankenstein
+
+Author : Mary Shelley
 
 Scene Description: A young man in his early 20s is seen in a dark, candle-lit laboratory, surrounded by strange scientific equipment and a lifeless figure on the table, illustrated in a cartoon style.
 Plot Summary: 빅터 프랑켄슈타인은 젊은 과학자로, 죽은 사람을 되살리기 위해 실험을 하고 있습니다. 이 장면은 그의 열정과 집착을 보여줍니다. 그는 과학적 발견의 기쁨에 가득 차 있으나, 동시에 무언가 잘못될지 모른다는 불안감을 느낍니다.
@@ -52,5 +55,3 @@ Plot Summary: 프랑켄슈타인은 자신의 실수와 그로 인한 고통을 
 
 Scene Description: The creature, standing over his creator’s fallen form, decides to leave him, seeking solitude in the icy wilderness, illustrated in a cartoon style.
 Plot Summary: 생명체는 프랑켄슈타인을 용서하고 그를 떠나, 자신만의 길을 찾아갑니다. 그는 인간 세계에서 멀리 떨어진 곳에서 평화를 찾으려 하지만, 여전히 고독 속에 갇혀 있습니다. 이 장면은 그의 마지막 결정을 보여주며, 프랑켄슈타인 이야기의 종결을 암시합니다.
-
-

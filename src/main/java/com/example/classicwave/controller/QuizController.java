@@ -34,17 +34,6 @@ public class QuizController {
     }
 
 
-    // 테스트용
-    @GetMapping("/current-user")
-    public String getCurrentUser() {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        if (authentication != null && authentication.isAuthenticated()) {
-            return "현재 사용자: " + authentication.getName();
-        } else {
-            return "인증되지 않은 사용자";
-        }
-    }
-
     @PostMapping("/submit")
     public ResponseEntity<QuizSubmitResponse> submitQuiz(@RequestBody QuizSubmitRequest quizSubmitRequest){
         Long quizListId = quizSubmitRequest.getQuizListId();

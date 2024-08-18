@@ -24,4 +24,3 @@ Options:
 4: "$Option D$"
 5: "$Option E$"
 Answer: "$Answer$"
-Score: 10

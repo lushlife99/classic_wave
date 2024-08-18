@@ -26,4 +26,12 @@ public class TestController {
         bookService.postToScheduler(bookRequest);
         return ResponseEntity.ok().build();
     }
+
+    @PostMapping("/book")
+    public ResponseEntity createTestingBook(@RequestBody EBookRequest bookRequest) {
+        bookService.createTestBook(bookRequest);
+        return ResponseEntity.ok().build();
+    }
+
+
 }

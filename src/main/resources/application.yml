@@ -51,3 +51,9 @@ server:
     cookie:
       same-site: None
       secure: true
+
+naver:
+  cloud:
+    api:
+      client-secret: ODebzxiUzd
+      client-id: BbWzgK5O5u6yuTl0pfPW

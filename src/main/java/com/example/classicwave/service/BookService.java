@@ -43,6 +43,7 @@ public class BookService {
         eBookRedisTemplate.opsForSet().add(key, bookRequest);
     }
 
+    @Transactional
     public BookDto getBookMetadata(Long bookId) {
         Book book = bookRepository.findById(bookId).orElseThrow(() -> new CustomException(ErrorCode.BAD_REQUEST));
         return new BookDto(book);
@@ -56,7 +57,7 @@ public class BookService {
 
     @Transactional(readOnly = true)
     public Optional<BookDto> search(String searchText) {
-        Optional<Book> optionalBook = bookRepository.findByName(searchText);
+        Optional<Book> optionalBook = bookRepository.findFirstByNameContaining(searchText);
 
         if (optionalBook.isPresent()) {
             Book book = optionalBook.get();
@@ -136,7 +137,12 @@ public class BookService {
             bookList.add(book);
         }
 
-        bookRepository.saveAll(bookList);
+        List<Book> books = bookRepository.saveAll(bookList);
+
+        for (Book book : books) {
+            redisTemplate.opsForZSet().add(SORTED_TOTAL_LIKES_KEY, book.getId().toString(), 1);
+
+        }
     }
 
 }

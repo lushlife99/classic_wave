@@ -23,6 +23,7 @@ import java.net.URLEncoder;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -33,6 +34,7 @@ public class BookService {
     private final RedisTemplate<String, String> redisTemplate;
     private final NaverBookClient naverBookClient;
     private final static String EBOOK_REQUEST_PREFIX = "ebookRequest";
+    private final static String SORTED_TOTAL_LIKES_KEY = "sorted:total_like";
 
     public void postToScheduler(EBookRequest bookRequest) {
         String key = EBOOK_REQUEST_PREFIX + ":" + bookRequest.getIsbnId();
@@ -90,36 +92,33 @@ public class BookService {
     public Page<BookDto> searchBookList(SearchCond searchCond, int page) {
         Pageable pageable = PageRequest.of(page, 10);
 
-        Page<Book> books;
         if (searchCond == SearchCond.popular) {
-//            books = bookRepository.findAllByOrderByLikesDesc(pageable);
-            books = null;
-        } else {
-            books = bookRepository.findAllByOrderByCreatedTimeDesc(pageable);
+            List<Long> bookIdList = getBookIdListOrderByLikes(page);
+            List<Book> bookList = bookRepository.findAllById(bookIdList);
+            List<BookDto> bookDtoList = bookList.stream()
+                    .map(BookDto::new)
+                    .toList();
+
+            Long size = redisTemplate.opsForZSet().size(SORTED_TOTAL_LIKES_KEY);
+            return new PageImpl<>(bookDtoList, pageable, size != null ? size : 0);
         }
+        else {
+            Page<Book> books = bookRepository.findAllByOrderByCreatedTimeDesc(pageable);
+            List<BookDto> bookDtoList = books.getContent().stream()
+                    .map(BookDto::new)
+                    .toList();
 
-        List<BookDto> bookDtoList = books.getContent().stream()
-                .map(BookDto::new)
-                .toList();
-
-        return new PageImpl<>(bookDtoList, pageable, books.getTotalElements());
+            return new PageImpl<>(bookDtoList, pageable, books.getTotalElements());
+        }
     }
 
-    public List<Integer> getBookIdListOrderByLikes(int page) {
-        String redisKey = "books:likes";
+    public List<Long> getBookIdListOrderByLikes(int page) {
         int pageSize = 10;
-        int start = (page - 1) * pageSize;
+        int start = page * pageSize;
         int end = start + pageSize - 1;
 
-        // Get book ids sorted by likes in descending order from Redis SortedSet
-        Set<String> bookIdSet = redisTemplate.opsForZSet().reverseRange(redisKey, start, end);
-
-        // Convert Set<String> to List<Integer>
-        List<Integer> bookIdList = bookIdSet.stream()
-                .map(Integer::valueOf)
-                .toList();
-
-        return bookIdList;
+        return redisTemplate.opsForZSet().range(SORTED_TOTAL_LIKES_KEY, start, end)
+                .stream().map(Long::parseLong).toList();
     }
 
 

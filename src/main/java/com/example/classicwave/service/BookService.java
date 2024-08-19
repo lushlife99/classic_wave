@@ -20,9 +20,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -123,9 +121,22 @@ public class BookService {
 
 
 
-    public void createTestBook(EBookRequest eBookRequest) {
-        Book entity = eBookRequest.toEntity();
-        bookRepository.save(entity);
+    public void createTestBookList(int size) {
+
+        List<Book> bookList = new ArrayList<>();
+
+        for (int i = 1; i <= size; i++) {
+            Book book = Book.builder()
+                    .name("test book title" + i)
+                    .isbnId("test book isbnid" + i)
+                    .authorName("test book author" + i)
+                    .folderName(UUID.randomUUID().toString())
+                    .build();
+
+            bookList.add(book);
+        }
+
+        bookRepository.saveAll(bookList);
     }
 
 }

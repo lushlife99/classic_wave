@@ -24,7 +24,7 @@ public class TestController {
         return gutenbergApiClient.searchBooks(search, copyright);
     }
 
-    @PostMapping("/create/booklist")
+    @PostMapping("/create/book-list")
     public ResponseEntity createTestBookList() {
         bookService.createTestBookList(31);
         return ResponseEntity.ok().build();

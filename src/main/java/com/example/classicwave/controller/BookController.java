@@ -78,4 +78,9 @@ public class BookController {
         return bookService.searchBookList(searchCond, page);
     }
 
+    @GetMapping("/liked-list")
+    public Page<BookDto> searchLikedBookList(@RequestParam(defaultValue = "0") int page, Authentication authentication) {
+        return bookService.searchLikedBookList(page, authentication);
+    }
+
 }

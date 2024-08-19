@@ -14,4 +14,6 @@ public interface BookRepository extends JpaRepository<Book, Long> {
 //    Page<Book> findAllByOrderByLikesDesc(Pageable pageable);
     Page<Book> findAllByOrderByCreatedTimeDesc(Pageable pageable);
 
+    Optional<Book> findFirstByNameContaining(String searchText);
+
 }

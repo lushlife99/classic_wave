@@ -10,7 +10,8 @@ public record QuizListResponse(
     public record QuestionResponse(
             @JsonProperty("question") String question,
             @JsonProperty("options") Options options,
-            @JsonProperty("answer") String answer
+            @JsonProperty("answer") String answer,
+            @JsonProperty("comment") String comment
     ) {
         public record Options(
                 @JsonProperty("1") String optionA,

@@ -1,9 +1,14 @@
 package com.example.classicwave.service;
 
 import com.example.classicwave.domain.Book;
+<<<<<<< feature/search
 import com.example.classicwave.domain.Member;
+
+import com.example.classicwave.dto.request.BookCreateRequest;
+>>>>>>> develop
 import com.example.classicwave.dto.domain.BookDto;
 import com.example.classicwave.dto.request.EBookRequest;
+import com.example.classicwave.dto.response.BookCreateResponse;
 import com.example.classicwave.enums.SearchCond;
 import com.example.classicwave.error.CustomException;
 import com.example.classicwave.error.ErrorCode;
@@ -176,4 +181,26 @@ public class BookService {
         }
     }
 
+    //책 정보를 직접 입력해 추가
+    public BookCreateResponse createBookDirect(BookCreateRequest request){
+
+        Book book = Book.builder()
+                .name(request.getBookName())
+                .isbnId(request.getIsbn_id())
+                .authorName(request.getAuthor_name())
+                .folderName(request.getFolder_name())
+                .build();
+
+        Book saveBook = bookRepository.save(book);
+
+        BookCreateResponse response = new BookCreateResponse(
+                saveBook.getName(),
+                saveBook.getIsbnId(),
+                saveBook.getCreatedTime(),
+                saveBook.getAuthorName(),
+                saveBook.getFolderName()
+        );
+
+        return response;
+    }
 }

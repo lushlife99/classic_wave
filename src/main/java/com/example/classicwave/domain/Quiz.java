@@ -35,4 +35,11 @@ public class Quiz {
 
     private int submitCount;
     private int correctCount;
+
+    public double calculateAccuracy() {
+        if (submitCount == 0) {
+            return 0.0; // 제출이 없는 경우
+        }
+        return (double) correctCount / submitCount; // 정답률 계산
+    }
 }

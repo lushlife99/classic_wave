@@ -22,22 +22,25 @@ import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 @Service
 @RequiredArgsConstructor
 public class BookService {
 
     private final BookRepository bookRepository;
-    private final RedisTemplate<String, EBookRequest> redisTemplate;
+    private final RedisTemplate<String, EBookRequest> eBookRedisTemplate;
+    private final RedisTemplate<String, String> redisTemplate;
     private final NaverBookClient naverBookClient;
     private final static String EBOOK_REQUEST_PREFIX = "ebookRequest";
+
     public void postToScheduler(EBookRequest bookRequest) {
         String key = EBOOK_REQUEST_PREFIX + ":" + bookRequest.getIsbnId();
 
-        if(redisTemplate.hasKey(key))
+        if(eBookRedisTemplate.hasKey(key))
             throw new CustomException(ErrorCode.ALREADY_POSTED_CLASSIC);
 
-        redisTemplate.opsForSet().add(key, bookRequest);
+        eBookRedisTemplate.opsForSet().add(key, bookRequest);
     }
 
     public BookDto getBookMetadata(Long bookId) {
@@ -101,6 +104,24 @@ public class BookService {
 
         return new PageImpl<>(bookDtoList, pageable, books.getTotalElements());
     }
+
+    public List<Integer> getBookIdListOrderByLikes(int page) {
+        String redisKey = "books:likes";
+        int pageSize = 10;
+        int start = (page - 1) * pageSize;
+        int end = start + pageSize - 1;
+
+        // Get book ids sorted by likes in descending order from Redis SortedSet
+        Set<String> bookIdSet = redisTemplate.opsForZSet().reverseRange(redisKey, start, end);
+
+        // Convert Set<String> to List<Integer>
+        List<Integer> bookIdList = bookIdSet.stream()
+                .map(Integer::valueOf)
+                .toList();
+
+        return bookIdList;
+    }
+
 
 
     public void createTestBook(EBookRequest eBookRequest) {

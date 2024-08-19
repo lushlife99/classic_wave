@@ -10,6 +10,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 
 @Service
@@ -18,6 +19,7 @@ public class LikeService {
 
     private final static String BOOK_LIKE_KEY_PREFIX = "like:book:"; // 책을 관심 등록 한 유저들을 찾는 key
     private final static String MEMBER_LIKE_KEY_PREFIX = "like:member:"; // 유저가 관심 등록 한 책의 id list를 찾는 key
+    private final static String SORTED_TOTAL_LIKES_KEY = "sorted:total_like";
     private final RedisTemplate<String, String> redisTemplate;
     private final MemberRepository memberRepository;
 
@@ -31,6 +33,7 @@ public class LikeService {
 
         redisTemplate.opsForSet().add(bookLikeKey, member.getId().toString());
         redisTemplate.opsForSet().add(memberLikeKey, bookId.toString());
+        redisTemplate.opsForZSet().incrementScore(SORTED_TOTAL_LIKES_KEY, bookId.toString(), 1);
     }
 
     public List<Long> getMemberLikeList(Authentication authentication) {
@@ -65,6 +68,7 @@ public class LikeService {
 
         redisTemplate.opsForSet().remove(bookLikeKey, member.getId().toString());
         redisTemplate.opsForSet().remove(memberLikeKey, bookId.toString());
+        redisTemplate.opsForZSet().incrementScore(SORTED_TOTAL_LIKES_KEY, bookId.toString(), -1);
     }
 
 }

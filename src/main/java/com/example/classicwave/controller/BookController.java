@@ -14,10 +14,14 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.Optional;
 
 @Tag(name = "책", description = "도서 생성, 검색, 정보 제공 API")
@@ -79,7 +83,11 @@ public class BookController {
             @RequestParam SearchCond searchCond,
             @RequestParam(defaultValue = "0") int page) {
 
-        return bookService.searchBookList(searchCond, page);
+        Pageable pageable = PageRequest.of(page, 10);
+
+        List<BookDto> bookDtos = bookService.searchBookList(pageable, searchCond, page);
+        Long count = bookService.getTotalBookSize();
+        return new PageImpl<>(bookDtos, pageable, count);
     }
 
     @GetMapping("/liked-list")

@@ -24,5 +24,4 @@ Options:
 2: "$Option B$"
 3: "$Option C$"
 4: "$Option D$"
-5: "$Option E$"
 Answer: "$Answer$" Comment : "$Comment$"

@@ -14,6 +14,7 @@ import com.example.classicwave.openFeign.naver.response.NaverBookResponse;
 import com.example.classicwave.repository.BookRepository;
 import com.example.classicwave.repository.MemberRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
@@ -88,6 +89,9 @@ public class BookService {
     }
 
     /**
+     * 캐싱
+     * 한시간마다 인기순, 최신순 초기화
+     *
      *  ToDo
      *
      *  popular paging
@@ -95,27 +99,27 @@ public class BookService {
      *  DTO에 바로 매핑
      */
     @Transactional(readOnly = true)
-    public Page<BookDto> searchBookList(SearchCond searchCond, int page) {
-        Pageable pageable = PageRequest.of(page, PAGE_SIZE);
+    @Cacheable(value = "books", key = "#searchCond + '_' + #page", condition = "#page == 0")
+    public List<BookDto> searchBookList(Pageable pageable, SearchCond searchCond, int page) {
 
         if (searchCond == SearchCond.popular) {
             List<Long> bookIdList = getBookIdListOrderByLikes(page);
             List<Book> bookList = bookRepository.findAllById(bookIdList);
-            List<BookDto> bookDtoList = bookList.stream()
+            return bookList.stream()
                     .map(BookDto::new)
                     .toList();
-
-            Long size = redisTemplate.opsForZSet().size(SORTED_TOTAL_LIKES_KEY);
-            return new PageImpl<>(bookDtoList, pageable, size != null ? size : 0);
         }
+
         else {
             Page<Book> books = bookRepository.findAllByOrderByCreatedTimeDesc(pageable);
-            List<BookDto> bookDtoList = books.getContent().stream()
+            return books.getContent().stream()
                     .map(BookDto::new)
                     .toList();
-
-            return new PageImpl<>(bookDtoList, pageable, books.getTotalElements());
         }
+    }
+
+    public Long getTotalBookSize() {
+        return redisTemplate.opsForZSet().size(SORTED_TOTAL_LIKES_KEY);
     }
 
     public List<Long> getBookIdListOrderByLikes(int page) {

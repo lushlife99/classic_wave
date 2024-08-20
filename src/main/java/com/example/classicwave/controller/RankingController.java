@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 
-@Tag(name = "프로필", description = "조회 및 수정")
+@Tag(name = "랭킹", description = "사용자들의 랭킹 조회")
 @RequestMapping("api/ranking")
 @RequiredArgsConstructor
 @RestController

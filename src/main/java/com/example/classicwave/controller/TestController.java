@@ -6,6 +6,7 @@ import com.example.classicwave.dto.response.BookCreateResponse;
 import com.example.classicwave.openFeign.gutenberg.response.BookSearchResponse;
 import com.example.classicwave.openFeign.gutenberg.GutenbergApiClient;
 import com.example.classicwave.service.BookService;
+import io.swagger.v3.oas.annotations.Hidden;
 import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -14,6 +15,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
+@Hidden
 @RequestMapping("/test")
 @RequiredArgsConstructor
 public class TestController {

@@ -1,11 +1,8 @@
 package com.example.classicwave.service;
 
 import com.example.classicwave.domain.Book;
-<<<<<<< feature/search
 import com.example.classicwave.domain.Member;
-
 import com.example.classicwave.dto.request.BookCreateRequest;
->>>>>>> develop
 import com.example.classicwave.dto.domain.BookDto;
 import com.example.classicwave.dto.request.EBookRequest;
 import com.example.classicwave.dto.response.BookCreateResponse;

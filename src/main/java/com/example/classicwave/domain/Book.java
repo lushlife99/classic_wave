@@ -29,10 +29,14 @@ public class Book {
     @NotNull
     private String folderName;
 
+    //발행 년도 추가
+    private String publishedYear;
+
     @OneToMany(mappedBy = "book")
     @OrderColumn(name = "scene_order")
     @Builder.Default
     private List<Scene> sceneList = new ArrayList<>();
+
     @CreationTimestamp
     private LocalDateTime createdTime;
 }

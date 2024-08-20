@@ -28,7 +28,7 @@ public class QuizController {
     private final QuizService quizService;
 
     @PostMapping("/create")
-    @Operation(summary = "퀴즈 생성", description = "책 이름 통해 퀴즈를 생성")
+    @Operation(summary = "퀴즈 생성", description = "책 이름 통해 퀴즈를 생성 이때 첫 생성시에는 GPT를 이용하여 생성하고, 그 다음부터는 DB에서 quizList를 불러옴")
     public ResponseEntity<QuizListResponse> createAndSaveQuiz(@RequestBody QuizRequest quizRequest) {
             String bookTitle = quizRequest.getBookTitle();
 

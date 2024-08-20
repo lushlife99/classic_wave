@@ -77,8 +77,8 @@ public class QuizService {
                             options.size() > 0 ? options.get(0) : null,
                             options.size() > 1 ? options.get(1) : null,
                             options.size() > 2 ? options.get(2) : null,
-                            options.size() > 3 ? options.get(3) : null,
-                            options.size() > 4 ? options.get(4) : null
+                            options.size() > 3 ? options.get(3) : null
+
                     );
 
                     return new QuizListResponse.QuestionResponse(
@@ -143,7 +143,6 @@ public class QuizService {
             optionList.add(questionResponse.options().optionB());
             optionList.add(questionResponse.options().optionC());
             optionList.add(questionResponse.options().optionD());
-            optionList.add(questionResponse.options().optionE());
 
             quiz.setOptionList(optionList);
 

@@ -46,7 +46,7 @@ public class SecurityConfig  {
                 .exceptionHandling(exHandling -> exHandling.authenticationEntryPoint(jwtAuthenticationEntryPoint))
                 .authorizeHttpRequests((authorizeRequests) ->
                         authorizeRequests
-                                .requestMatchers("/join", "/login", "/test/**", "/v3/**", "/swagger-ui/**", "/hc", "/env").permitAll()
+                                .requestMatchers("/join", "/login", "/test/**", "/v3/**", "/swagger-ui/**", "/actuator/**").permitAll()
                                 .requestMatchers("/api/**").authenticated()
                 );
 

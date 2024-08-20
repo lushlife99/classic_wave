@@ -17,8 +17,7 @@ public record QuizListResponse(
                 @JsonProperty("1") String optionA,
                 @JsonProperty("2") String optionB,
                 @JsonProperty("3") String optionC,
-                @JsonProperty("4") String optionD,
-                @JsonProperty("5") String optionE
+                @JsonProperty("4") String optionD
         ) {
         }
     }

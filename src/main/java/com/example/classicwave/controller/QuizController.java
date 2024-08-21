@@ -3,6 +3,7 @@ package com.example.classicwave.controller;
 import com.example.classicwave.dto.request.QuizRequest;
 import com.example.classicwave.dto.request.QuizSubmitRequest;
 import com.example.classicwave.dto.response.QuizListResponse;
+import com.example.classicwave.dto.response.QuizListWithIdResponse;
 import com.example.classicwave.dto.response.QuizSubmitResponse;
 import com.example.classicwave.service.QuizService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -27,12 +28,12 @@ public class QuizController {
 
     private final QuizService quizService;
 
-    @PostMapping("/create")
+    @PostMapping("/addOrView")
     @Operation(summary = "퀴즈 생성", description = "책 이름 통해 퀴즈를 생성 이때 첫 생성시에는 GPT를 이용하여 생성하고, 그 다음부터는 DB에서 quizList를 불러옴")
-    public ResponseEntity<QuizListResponse> createAndSaveQuiz(@RequestBody QuizRequest quizRequest) {
+    public ResponseEntity<QuizListWithIdResponse> createAndSaveQuiz(@RequestBody QuizRequest quizRequest) {
             String bookTitle = quizRequest.getBookTitle();
 
-            QuizListResponse quizResponse = quizService.getQuizList(bookTitle);
+            QuizListWithIdResponse quizResponse = quizService.getQuizList(bookTitle);
             return ResponseEntity.ok(quizResponse);
 
     }

@@ -40,6 +40,7 @@ public class JwtTokenProvider {
 
     private final int refreshExpirationTime;
     private final MemberRepository memberRepository;
+    private static final String JWT_KEY_PREFIX = "jwt:";
 
 
 
@@ -73,7 +74,7 @@ public class JwtTokenProvider {
         response.addCookie(cookie);
 
         redisTemplate.opsForValue().set(
-                authentication.getName(),
+                JWT_KEY_PREFIX + authentication.getName(),
                 refreshToken,
                 refreshExpirationTime,
                 TimeUnit.MILLISECONDS
@@ -158,7 +159,7 @@ public class JwtTokenProvider {
     public TokenInfo reissueToken(String reqRefreshToken, HttpServletResponse response) throws RuntimeException{
         Claims claims = parseClaims(reqRefreshToken);
 
-        String refreshToken = redisTemplate.opsForValue().get(claims.getSubject()).toString();
+        String refreshToken = redisTemplate.opsForValue().get(JWT_KEY_PREFIX + claims.getSubject()).toString();
 
         Collection<? extends GrantedAuthority> authorities =
                 Arrays.stream(claims.get(AUTHORITIES_KEY).toString().split(","))

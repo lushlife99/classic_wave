@@ -1,9 +1,12 @@
 package com.example.classicwave.controller;
 
+import com.example.classicwave.dto.request.BookCreateRequest;
 import com.example.classicwave.dto.request.EBookRequest;
+import com.example.classicwave.dto.response.BookCreateResponse;
 import com.example.classicwave.openFeign.gutenberg.response.BookSearchResponse;
 import com.example.classicwave.openFeign.gutenberg.GutenbergApiClient;
 import com.example.classicwave.service.BookService;
+import io.swagger.v3.oas.annotations.Hidden;
 import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -12,6 +15,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
+@Hidden
 @RequestMapping("/test")
 @RequiredArgsConstructor
 public class TestController {
@@ -22,6 +26,12 @@ public class TestController {
     @GetMapping
     public BookSearchResponse test(@RequestParam String search, @RequestParam String copyright) {
         return gutenbergApiClient.searchBooks(search, copyright);
+    }
+
+    @PostMapping("/create/book-list")
+    public ResponseEntity createTestBookList() {
+        bookService.createTestBookList(31);
+        return ResponseEntity.ok().build();
     }
 
     @PostMapping("/book-create")
@@ -40,5 +50,12 @@ public class TestController {
         } else {
             return "인증되지 않은 사용자";
         }
+    }
+
+    @PostMapping("/create-book-direct")
+    @Operation(summary = "책 정보 직접 추가", description = "책 이름, isbn_id, 작가 , 장르를 직접 지정해 책을 생성합니다.")
+    public ResponseEntity<BookCreateResponse> createBookDirect (@RequestBody BookCreateRequest request){
+        BookCreateResponse response = bookService.createBookDirect(request);
+        return ResponseEntity.ok(response);
     }
 }

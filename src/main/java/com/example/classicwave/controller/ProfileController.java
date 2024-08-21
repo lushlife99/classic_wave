@@ -12,7 +12,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
-@Tag(name = "프로필", description = "조회 및 수정")
+@Tag(name = "프로필", description = "프로필 조회 및 수정")
 @RequestMapping("api/profile")
 @RequiredArgsConstructor
 @RestController
@@ -22,7 +22,7 @@ public class ProfileController {
     private final MemberRepository memberRepository;
 
     @GetMapping
-    @Operation(summary = "유저 프로필 조회", description = "로그인한 사용자의 프로필 정보를 조회.")
+    @Operation(summary = "유저 프로필 조회", description = "사용자의 프로필 정보를 조회.")
     public ResponseEntity<MemberDto> getUserProfile() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
@@ -38,7 +38,7 @@ public class ProfileController {
 
 
     @PatchMapping
-    @Operation(summary = "유저 프로필 업데이트", description = "로그인한 사용자의 프로필 정보를 업데이트합니다. 사용자는 이름, 소개, 프로필 사진 등을 변경할 수 있습니다.")
+    @Operation(summary = "유저 프로필 업데이트", description = "사용자의 프로필 정보를 업데이트합니다. 사용자는 이름, 소개, 프로필 사진 등을 변경할 수 있습니다.")
     public ResponseEntity<MemberDto> updateUserProfile(@RequestBody MemberDto memberDto) {
 
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();

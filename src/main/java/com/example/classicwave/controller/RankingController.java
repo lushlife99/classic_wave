@@ -22,7 +22,7 @@ public class RankingController {
     private final RankService rankService;
 
     @GetMapping
-    @Operation(summary = "랭킹 정보 반환", description = "현재 사용자 및 전체 사용자에 대한 랭킹 정보를 반환합니다.")
+    @Operation(summary = "랭킹 정보 반환", description = "전체 사용자에 대한 랭킹 정보를 반환합니다.")
     public ResponseEntity<List<RankDto>> getRanking(){
         List<RankDto> rankings = rankService.getRanking();
         return ResponseEntity.ok(rankings);

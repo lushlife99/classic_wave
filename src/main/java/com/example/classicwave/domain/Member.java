@@ -23,14 +23,25 @@ public class Member implements UserDetails {
 
     @Id @GeneratedValue
     private Long id;
+
     @Column(unique = true)
     private String logInId;
+
     private String password;
+
+    private String name;
+
+    private String introduction;
+
+    // 사진 url
+    //private String profilePictureUrl;
+
     @OneToMany(mappedBy = "member") @Builder.Default
     private List<QuizSubmit> quizSubmitList = new ArrayList<>();
 
     @ElementCollection(fetch = FetchType.EAGER) @Builder.Default
     private List<String> roles = new ArrayList<>();
+
 
 
     @Override
@@ -41,7 +52,6 @@ public class Member implements UserDetails {
 
         return collect;
     }
-
 
     @Override
     public String getPassword() {
@@ -56,7 +66,6 @@ public class Member implements UserDetails {
     @Override
     public boolean isAccountNonExpired() {
         return true;
-
     }
 
     @Override

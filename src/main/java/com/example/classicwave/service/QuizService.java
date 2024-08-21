@@ -173,13 +173,15 @@ public class QuizService {
 
         int score = calculateScore(userAnswers,correctAnswers);
 
-
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         UserDetails userDetails = (UserDetails) authentication.getPrincipal();
 
-        // Member 객체를 가져오기 위해 memberRepository에서 다시 조회
         Member currentMember = memberRepository.findByLogInId(userDetails.getUsername())
                 .orElseThrow(() -> new UsernameNotFoundException("사용자를 찾을 수 없습니다."));
+
+        currentMember.setRating(currentMember.getRating() + score); // 점수 추가
+        memberRepository.save(currentMember);
+
 
         QuizSubmit quizSubmit = QuizSubmit.builder()
                 .member(currentMember)

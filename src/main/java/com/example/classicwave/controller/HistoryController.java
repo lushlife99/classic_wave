@@ -41,11 +41,10 @@ public class HistoryController {
     }
 
     @GetMapping("/{summitId}")
-    @Operation(summary = "제출 내역 반환", description = "제출된 퀴즈 내역과 관련 정보 반환")
+    @Operation(summary = "제출 내역 반환", description = "책 리스트 조회에서 반환된 summitid로 제출된 퀴즈 내역과 관련 정보 반환")
     public ResponseEntity<QuizSubmitHistoryResponse> getQuizSubmitHistory(@PathVariable Long summitId) {
         QuizSubmitHistoryResponse quizHistory = historyService.getQuizSubmitHistory(summitId);
 
-        // 응답을 ResponseEntity로 감싸서 반환합니다.
         return ResponseEntity.ok(quizHistory);
     }
 

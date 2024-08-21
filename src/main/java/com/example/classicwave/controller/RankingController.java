@@ -14,7 +14,7 @@ import java.util.List;
 
 
 @Tag(name = "랭킹", description = "사용자들의 랭킹 조회")
-@RequestMapping("api/ranking")
+@RequestMapping("/api/ranking")
 @RequiredArgsConstructor
 @RestController
 public class RankingController {

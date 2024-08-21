@@ -13,7 +13,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 @Tag(name = "프로필", description = "프로필 조회 및 수정")
-@RequestMapping("api/profile")
+@RequestMapping("/api/profile")
 @RequiredArgsConstructor
 @RestController
 public class ProfileController {

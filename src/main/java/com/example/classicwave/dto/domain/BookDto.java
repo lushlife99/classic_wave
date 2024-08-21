@@ -36,4 +36,8 @@ public class BookDto {
             this.sceneList.add(new SceneDto(scene));
         }
     }
+
+    public BookDto(String name){
+        this.name = name;
+    }
 }

@@ -36,6 +36,8 @@ public class Member implements UserDetails {
     // 사진 url
     //private String profilePictureUrl;
 
+    private int rating;
+
     @OneToMany(mappedBy = "member") @Builder.Default
     private List<QuizSubmit> quizSubmitList = new ArrayList<>();
 

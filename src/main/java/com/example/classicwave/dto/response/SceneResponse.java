@@ -8,12 +8,12 @@ import java.util.UUID;
 
 public record SceneResponse(
         @JsonProperty(required = true, value = "scene-description") String description,
-        @JsonProperty(required = true, value = "plot-summary") String plotSummary
+        @JsonProperty(required = true, value = "plot") String plot
 ) {
 
     public Scene toEntity(Book book) {
         return Scene.builder()
-                .plotSummary(this.plotSummary)
+                .plotSummary(this.plot)
                 .book(book)
                 .description(this.description)
                 .photoId(UUID.randomUUID().toString())

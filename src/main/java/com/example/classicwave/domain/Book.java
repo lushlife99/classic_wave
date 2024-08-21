@@ -37,6 +37,10 @@ public class Book {
     @Builder.Default
     private List<Scene> sceneList = new ArrayList<>();
 
-    @CreationTimestamp
     private LocalDateTime createdTime;
+
+    @PrePersist
+    protected void onCreate() {
+        this.createdTime = LocalDateTime.now();
+    }
 }

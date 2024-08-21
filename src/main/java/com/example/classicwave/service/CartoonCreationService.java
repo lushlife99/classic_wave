@@ -54,7 +54,7 @@ public class CartoonCreationService {
 
     @Value("classpath:/prompts/scene-generation-system-message.st")
     private Resource sceneSystemPrompt;
-    @Value("classpath:/prompts/scene-generation-user-message.st")
+    @Value("classpath:/prompts/book-info-user-message.st")
     private Resource sceneUserPrompt;
     private final static String IMAGE_PREFIX = "/image";
     private final static String AUDIO_PREFIX = "/audio";
@@ -83,28 +83,17 @@ public class CartoonCreationService {
             SceneListResponse sceneListResponse = getSceneListByBookInfo(book);
             book.setAuthorName(sceneListResponse.author());
 
-            // 3. Search copyright this book
+            System.out.println(sceneListResponse);
 
-            String urlEncodedQuery = URLEncoder.encode(sceneListResponse.bookTitle(), StandardCharsets.UTF_8)
-                        .replace("+", "%20");
+            // 3. Create SceneList
+            List<Scene> scenes = sceneService.saveSceneList(book, sceneListResponse);
 
-            BookSearchResponse bookSearchResponse = gutenbergApiClient.searchBooks(urlEncodedQuery, Boolean.toString(false));
-            List<BookResult> bookResults = bookSearchResponse.getResults();
-            for (BookResult searchResult : bookResults) {
-                if (StringUtils.lowerCase(searchResult.getTitle()).contains(StringUtils.lowerCase(sceneListResponse.bookTitle()))) {
+            List<Speech> speeches = generateAudios(sceneListResponse);
+            s3Service.uploadAudios(speeches, book.getFolderName() + AUDIO_PREFIX);
 
-                    // 4. Generate images and audios
-                    List<Scene> scenes = sceneService.saveSceneList(book, sceneListResponse);
-
-                    List<Speech> speeches = generateAudios(sceneListResponse);
-                    s3Service.uploadAudios(speeches, book.getFolderName() + AUDIO_PREFIX);
-
-                    List<ImageGeneration> images = generateImages(sceneListResponse);
-                    s3Service.uploadImages(images, book.getFolderName() + IMAGE_PREFIX);
-                    book.setSceneList(scenes);
-                    return;
-                }
-            }
+            List<ImageGeneration> images = generateImages(sceneListResponse);
+            s3Service.uploadImages(images, book.getFolderName() + IMAGE_PREFIX);
+            book.setSceneList(scenes);
 
         }
     }
@@ -112,15 +101,20 @@ public class CartoonCreationService {
     public SceneListResponse getSceneListByBookInfo(Book book) {
 
         BeanOutputConverter<SceneListResponse> outputConverter = new BeanOutputConverter<>(SceneListResponse.class);
-        PromptTemplate userPrompt = getUserPrompt(book.getName(), book.getIsbnId(), outputConverter.getFormat());
+        PromptTemplate userPrompt = getUserPrompt(book.getName(), outputConverter.getFormat());
         SystemPromptTemplate systemPrompt = new SystemPromptTemplate(sceneSystemPrompt);
+
+        // Prompt 생성 시 topP 설정 추가
         Prompt prompt = new Prompt(List.of(userPrompt.createMessage(), systemPrompt.createMessage()),
                 OpenAiChatOptions.builder()
                         .withMaxTokens(4096)
+                        .withTopP(0.3f)
                         .build());
+
         Generation result = openAiChatModel.call(prompt).getResult();
         return outputConverter.convert(result.getOutput().getContent());
     }
+
 
     public List<ImageGeneration> generateImages(SceneListResponse sceneListResponse) {
         List<String> prompts = sceneListResponse.sceneResponseList().stream()
@@ -145,7 +139,7 @@ public class CartoonCreationService {
 
     public List<Speech> generateAudios(SceneListResponse sceneListResponse) {
         List<String> prompts = sceneListResponse.sceneResponseList().stream()
-                .map(SceneResponse::plotSummary)
+                .map(SceneResponse::plot)
                 .toList();
 
         List<Speech> speechResult = new ArrayList<>();
@@ -166,7 +160,7 @@ public class CartoonCreationService {
         return speechResult;
     }
 
-    private PromptTemplate getUserPrompt(String title, String isbnId, String format) {
-        return new PromptTemplate(sceneUserPrompt, Map.of("title", title, "isbnId", isbnId, "format", format));
+    private PromptTemplate getUserPrompt(String title, String format) {
+        return new PromptTemplate(sceneUserPrompt, Map.of("title", title, "format", format));
     }
 }

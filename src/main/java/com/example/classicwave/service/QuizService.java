@@ -2,6 +2,7 @@ package com.example.classicwave.service;
 
 import com.example.classicwave.domain.*;
 import com.example.classicwave.dto.response.QuizListResponse;
+import com.example.classicwave.dto.response.QuizListWithIdResponse;
 import com.example.classicwave.dto.response.QuizSubmitResponse;
 import com.example.classicwave.error.CustomException;
 import com.example.classicwave.error.ErrorCode;
@@ -48,7 +49,7 @@ public class QuizService {
     private final BookRepository bookRepository;
 
     @Transactional
-    public QuizListResponse getQuizList(String title){
+    public  QuizListWithIdResponse getQuizList(String title){
 
         Book book = bookRepository.findByName(title)
                 .orElseThrow(() -> new RuntimeException("해당 책이 존재하지 않습니다.: " + title));
@@ -65,7 +66,7 @@ public class QuizService {
     }
 
     // 기존 퀴즈 목록을 반환
-    public QuizListResponse returnExistQuizList(QuizList quizList){
+    public QuizListWithIdResponse returnExistQuizList(QuizList quizList){
         List<QuizListResponse.QuestionResponse> questions = quizList.getQuizzes().stream()
                 .map(quiz -> {
                     List<String> options = quiz.getOptionList();
@@ -90,7 +91,7 @@ public class QuizService {
                 })
                 .collect(Collectors.toList());
 
-        return new QuizListResponse(questions);
+        return new QuizListWithIdResponse(quizList.getId(), questions);
     }
 
 
@@ -119,7 +120,7 @@ public class QuizService {
 
     // 퀴즈 생성과 저장
     @Transactional
-    public QuizListResponse createAndSaveQuiz(String title) {
+    public QuizListWithIdResponse createAndSaveQuiz(String title) {
 
         Book book = bookRepository.findByName(title)
                 .orElseThrow(() -> new RuntimeException("해당 책이 존재하지 않습니다.: " + title));
@@ -149,7 +150,7 @@ public class QuizService {
             quizRepository.save(quiz);
         }
 
-        return quizListResponse;
+        return new QuizListWithIdResponse(quizList.getId(), quizListResponse.questions());
     }
 
     private int parseAnswer(String answer) {

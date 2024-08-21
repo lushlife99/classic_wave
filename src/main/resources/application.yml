@@ -57,3 +57,10 @@ naver:
     api:
       client-secret: ODebzxiUzd
       client-id: BbWzgK5O5u6yuTl0pfPW
+
+# 캐시 모니터링 설정
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,caches

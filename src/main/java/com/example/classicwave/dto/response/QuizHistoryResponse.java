@@ -9,8 +9,7 @@ import java.util.List;
 @AllArgsConstructor
 public class QuizHistoryResponse {
     private String question;
-    private List<Integer> submitAnswerList;
+    private List<Integer> submitAnswer; // 단일 제출 답변 리스트
     private int answer;
-    private int score;
     private String comment;
 }

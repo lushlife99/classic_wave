@@ -6,6 +6,7 @@ import com.example.classicwave.domain.QuizList;
 import com.example.classicwave.domain.QuizSubmit;
 import com.example.classicwave.dto.response.BookHistoryResponse;
 import com.example.classicwave.dto.response.QuizHistoryResponse;
+import com.example.classicwave.dto.response.QuizSubmitHistoryResponse;
 import com.example.classicwave.dto.response.QuizSubmitResponse;
 import com.example.classicwave.repository.*;
 import lombok.RequiredArgsConstructor;
@@ -14,6 +15,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 @Slf4j
@@ -46,29 +48,47 @@ public class HistoryService {
     }
 
     @Transactional(readOnly = true)
-    public List<QuizHistoryResponse> getQuizSubmitHistory(Long summitId) {
+    public QuizSubmitHistoryResponse getQuizSubmitHistory(Long summitId) {
 
+        // 제출된 퀴즈 제출 정보를 찾습니다.
         QuizSubmit quizSubmit = quizSubmitRepository.findById(summitId)
                 .orElseThrow(() -> new RuntimeException("해당 제출 내역을 찾을 수 없습니다."));
 
-        List<QuizHistoryResponse> quizHistoryList = new ArrayList<>();
-
+        // 제출된 퀴즈 리스트를 가져옵니다.
         QuizList quizList = quizSubmit.getQuizList();
-        if (quizList != null) {
-
-            for (Quiz quiz : quizList.getQuizzes()) {
-                quizHistoryList.add(new QuizHistoryResponse(
-                        quiz.getQuestion(),
-                        quizSubmit.getSubmitAnswerList(),
-                        quiz.getAnswer(),
-                        quizSubmit.getScore(),
-                        quiz.getComment()
-                ));
-            }
+        if (quizList == null) {
+            throw new RuntimeException("해당 제출 내역에 대한 퀴즈 리스트를 찾을 수 없습니다.");
         }
 
-        return quizHistoryList;
+        // 퀴즈 히스토리 응답 리스트를 생성합니다.
+        List<QuizHistoryResponse> quizHistoryList = new ArrayList<>();
+
+        // 제출된 답변 리스트를 가져옵니다.
+        List<Integer> submitAnswerList = quizSubmit.getSubmitAnswerList();
+
+        // 퀴즈 리스트 내 각 퀴즈에 대해 히스토리 응답을 생성합니다.
+        for (int i = 0; i < quizList.getQuizzes().size(); i++) {
+            Quiz quiz = quizList.getQuizzes().get(i);
+
+            // 사용자가 제출한 해당 퀴즈의 답변을 가져옵니다.
+            int userAnswer = submitAnswerList.size() > i ? submitAnswerList.get(i) : -1;
+
+            // 퀴즈 히스토리 응답을 생성합니다.
+            QuizHistoryResponse quizHistoryResponse = new QuizHistoryResponse(
+                    quiz.getQuestion(),   // 퀴즈 질문
+                    Collections.singletonList(userAnswer), // 사용자가 제출한 답변 (리스트에 하나의 요소로 넣음)
+                    quiz.getAnswer(),     // 정답
+                    quiz.getComment()     // 해설
+            );
+
+            // 히스토리 응답 리스트에 추가합니다.
+            quizHistoryList.add(quizHistoryResponse);
+        }
+
+        // 최종 응답 객체 생성 (총 점수 포함)
+        return new QuizSubmitHistoryResponse(quizHistoryList, quizSubmit.getScore());
     }
+
 
 
 

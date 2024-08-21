@@ -173,6 +173,7 @@ public class BookService {
                     .isbnId("test book isbnid" + i)
                     .authorName("test book author" + i)
                     .folderName(UUID.randomUUID().toString())
+                    .sceneList(new ArrayList<>())
                     .build();
 
             bookList.add(book);

@@ -38,8 +38,8 @@ public class HistoryService {
                 Book book = quizList.getBook();
                 bookList.add(new BookHistoryResponse(
                         book.getName(),
-                        book.getPublishedYear(),
                         book.getAuthorName(),
+                        book.getPublishedYear(),
                         submit.getId()  // submitListId 설정
                 ));
             }

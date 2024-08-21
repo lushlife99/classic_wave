@@ -36,8 +36,12 @@ public class AuthService {
             throw new CustomException(ErrorCode.ALREADY_EXIST_MEMBER);
         }
 
-        Member joinMember = Member.builder().logInId(joinRequest.getLoginId())
-                .roles(Collections.singletonList("ROLE_USER")).password(encoder.encode(joinRequest.getPassword())).build();
+        Member joinMember = Member.builder()
+                .logInId(joinRequest.getLoginId())
+                .roles(Collections.singletonList("ROLE_USER"))
+                .name(joinRequest.getName())
+                .password(encoder.encode(joinRequest.getPassword()))
+                .build();
         memberRepository.save(joinMember);
     }
 

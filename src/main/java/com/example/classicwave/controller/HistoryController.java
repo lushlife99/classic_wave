@@ -3,6 +3,7 @@ package com.example.classicwave.controller;
 import com.example.classicwave.domain.Member;
 import com.example.classicwave.dto.response.BookHistoryResponse;
 import com.example.classicwave.dto.response.QuizHistoryResponse;
+import com.example.classicwave.dto.response.QuizSubmitHistoryResponse;
 import com.example.classicwave.repository.MemberRepository;
 import com.example.classicwave.service.HistoryService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -40,9 +41,10 @@ public class HistoryController {
     }
 
     @GetMapping("/{summitId}")
-    @Operation(summary = "제출 내역 반환", description = "제출된 퀴즈 내역과 관련 정보 반환")
-    public ResponseEntity<List<QuizHistoryResponse>> getQuizSubmitHistory(@PathVariable Long summitId) {
-        List<QuizHistoryResponse> quizHistory = historyService.getQuizSubmitHistory(summitId);
+    @Operation(summary = "제출 내역 반환", description = "책 리스트 조회에서 반환된 summitid로 제출된 퀴즈 내역과 관련 정보 반환")
+    public ResponseEntity<QuizSubmitHistoryResponse> getQuizSubmitHistory(@PathVariable Long summitId) {
+        QuizSubmitHistoryResponse quizHistory = historyService.getQuizSubmitHistory(summitId);
+
         return ResponseEntity.ok(quizHistory);
     }
 

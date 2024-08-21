@@ -43,31 +43,25 @@ public class S3FileUploadService {
         return new InputStreamResource(imageInputStream);
     }
 
-    public void uploadImages(List<ImageGeneration> imageResults, String folderName) throws IOException {
+    public void uploadImages(List<Resource> imageResults, String folderName) throws IOException {
         for (int i = 0; i < imageResults.size(); i++) {
-            ImageGeneration image = imageResults.get(i);
-
-            String b64Json = image.getOutput().getB64Json();
-
-            if (b64Json == null || b64Json.isEmpty()) {
-                log.warn("Base64 JSON string is null or empty for image: " + image);
-                continue;
-            }
-
-            byte[] imageBytes = Base64.decodeBase64(b64Json);
-            String fileName = i + ".png";
+            Resource image = imageResults.get(i);
+            String fileName = "image" + i + ".png";
             String s3Key = folderName + "/" + fileName;
 
-            InputStream inputStream = new ByteArrayInputStream(imageBytes);
-            ObjectMetadata metadata = new ObjectMetadata();
-            metadata.setContentLength(imageBytes.length);
-            metadata.setContentType("image/png");
+            try (InputStream imageInputStream = image.getInputStream()) {
+                ObjectMetadata metadata = new ObjectMetadata();
+                metadata.setContentLength(imageInputStream.available());
+                metadata.setContentType("image/png");
 
-            amazonS3Client.putObject(bucket, s3Key, inputStream, metadata);
-            inputStream.close();
-
+                amazonS3Client.putObject(bucket, s3Key, imageInputStream, metadata);
+            } catch (IOException e) {
+                log.error("Failed to upload image: {}", fileName, e);
+                throw e;
+            }
         }
     }
+
 
     public void uploadAudios(List<Speech> audioResults, String folderName) throws IOException {
         for (int i = 0; i < audioResults.size(); i++) {

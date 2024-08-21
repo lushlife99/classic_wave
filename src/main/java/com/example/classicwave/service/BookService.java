@@ -11,10 +11,13 @@ import com.example.classicwave.error.CustomException;
 import com.example.classicwave.error.ErrorCode;
 import com.example.classicwave.openFeign.naver.NaverBookClient;
 import com.example.classicwave.openFeign.naver.response.NaverBookResponse;
+import com.example.classicwave.openFeign.stabilityai.StabilityAiClient;
+import com.example.classicwave.openFeign.stabilityai.request.ImageRequest;
 import com.example.classicwave.repository.BookRepository;
 import com.example.classicwave.repository.MemberRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.cache.annotation.Cacheable;
+import org.springframework.core.io.Resource;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
@@ -33,6 +36,7 @@ import java.util.*;
 public class BookService {
 
     private final BookRepository bookRepository;
+    private final StabilityAiClient stabilityAiClient;
     private final MemberRepository memberRepository;
     private final RedisTemplate<String, EBookRequest> eBookRedisTemplate;
     private final RedisTemplate<String, String> redisTemplate;
@@ -204,4 +208,8 @@ public class BookService {
 
         return response;
     }
+
+    //test
+
+
 }

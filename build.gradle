@@ -34,7 +34,8 @@ ext {
 }
 
 dependencies {
-
+    implementation 'io.github.openfeign:feign-gson:11.0'
+    implementation group: 'io.github.openfeign.form', name: 'feign-form-spring', version: '3.8.0'
     implementation 'org.springframework.boot:spring-boot-starter-cache'
     implementation 'org.springframework.boot:spring-boot-starter-actuator'
     implementation 'javax.xml.bind:jaxb-api:2.3.0'

@@ -9,6 +9,7 @@ import com.example.classicwave.service.BookService;
 import io.swagger.v3.oas.annotations.Hidden;
 import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
+import org.springframework.core.io.Resource;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -58,4 +59,5 @@ public class TestController {
         BookCreateResponse response = bookService.createBookDirect(request);
         return ResponseEntity.ok(response);
     }
+
 }

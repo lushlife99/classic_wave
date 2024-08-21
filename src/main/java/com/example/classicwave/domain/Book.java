@@ -30,7 +30,7 @@ public class Book {
     private String folderName;
 
     //발행 년도 추가
-    private String publishedYear;
+    private int publishedYear;
 
     @OneToMany(mappedBy = "book")
     @OrderColumn(name = "scene_order")

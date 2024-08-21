@@ -9,6 +9,6 @@ public class BookHistoryResponse {
 
     private String bookTitle;
     private String author;
-    private String publishedYear;
+    private int publishedYear;
     private Long quizsubmitId;
 }

@@ -32,7 +32,7 @@ public class Book {
     //발행 년도 추가
     private int publishedYear;
 
-    @OneToMany(mappedBy = "book")
+    @OneToMany(mappedBy = "book", cascade = CascadeType.REMOVE)
     @OrderColumn(name = "scene_order")
     @Builder.Default
     private List<Scene> sceneList = new ArrayList<>();

@@ -5,6 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.ArrayList;
 import java.util.UUID;
 
 @Data
@@ -20,6 +21,7 @@ public class EBookRequest {
                 .name(this.getName())
                 .isbnId(this.getIsbnId())
                 .folderName(UUID.randomUUID().toString())
+                .sceneList(new ArrayList<>())
                 .build();
     }
 }

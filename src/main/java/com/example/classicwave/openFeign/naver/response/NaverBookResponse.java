@@ -1,7 +1,6 @@
 package com.example.classicwave.openFeign.naver.response;
 
 import lombok.Data;
-import lombok.NoArgsConstructor;
 
 import java.util.List;
 

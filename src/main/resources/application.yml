@@ -51,7 +51,6 @@ spring:
           width: 1024
           height: 512
           style-preset: anime
-
     openai:
       api-key: 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
 
@@ -64,8 +63,8 @@ server:
 naver:
   cloud:
     api:
-      client-secret: ODebzxiUzd
-      client-id: BbWzgK5O5u6yuTl0pfPW
+      client-secret: fFGso_0pi1
+      client-id: hvxuR8VDPndikQW7v70F
 
 # 캐시 모니터링 설정
 management:

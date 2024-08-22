@@ -70,9 +70,9 @@ public class BookService {
     @Transactional(readOnly = true)
     public Optional<BookDto> search(String searchText) {
         Optional<Book> optionalBook = bookRepository.findFirstByNameContaining(searchText);
-
         if (optionalBook.isPresent()) {
             Book book = optionalBook.get();
+            System.out.println(new BookDto(book));
             return Optional.of(new BookDto(book));
         }
 
@@ -86,6 +86,7 @@ public class BookService {
         try {
             encodedSearchText = URLEncoder.encode(searchText, "UTF-8");
         } catch (UnsupportedEncodingException e) {
+            e.printStackTrace();
             throw new CustomException(ErrorCode.INTERNAL_SERVER_ERROR);
         }
 

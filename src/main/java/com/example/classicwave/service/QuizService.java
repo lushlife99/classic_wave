@@ -40,7 +40,7 @@ public class QuizService {
     private Resource quizSystemPrompt;
     @Value("classpath:/prompts/book-info-user-message.st")
     private Resource bookinfoUserPrompt;
-
+    
     private final OpenAiChatModel openAiChatModel;
     private final QuizRepository quizRepository;
     private final QuizListRepository quizListRepository;

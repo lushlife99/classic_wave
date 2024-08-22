@@ -32,6 +32,7 @@ public class BookDto {
         this.authorName = book.getAuthorName();
         this.name = book.getName();
         this.folderName = book.getFolderName();
+        sceneList = new ArrayList<>();
         for (Scene scene : book.getSceneList()) {
             this.sceneList.add(new SceneDto(scene));
         }

@@ -29,21 +29,19 @@ spring:
       max-lifetime: 30000
       connection-test-query: SELECT 1
       minimumIdle: 2
-      maximumPoolSize: 10
-      idleTimeout: 120000
+      maximumPoolSize: 20
       connectionTimeout: 300000
-      leakDetectionThreshold: 300000
     driver-class-name: com.mysql.cj.jdbc.Driver
     url: jdbc:mysql://classic-wave.cvwu0m44spce.ap-northeast-2.rds.amazonaws.com:3306/classic_wave?serverTimezone=Asia/Seoul&useLegacyDatetimeCode=false&characterEncoding=UTF-8
     username: admin
     password: admin1234
   jpa:
     hibernate:
-      ddl-auto: create
+      ddl-auto: update
     properties:
       hibernate:
         format_sql: true
-        dialect: org.hibernate.dialect.MySQL8Dialect
+        dialect: org.hibernate.dialect.MySQLDialect
     open-in-view: false
   ai:
     stabilityai:

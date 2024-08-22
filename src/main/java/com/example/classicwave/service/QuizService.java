@@ -24,6 +24,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
@@ -66,6 +67,7 @@ public class QuizService {
     }
 
     // 기존 퀴즈 목록을 반환
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
     public QuizListWithIdResponse returnExistQuizList(QuizList quizList){
         List<QuizListResponse.QuestionResponse> questions = quizList.getQuizzes().stream()
                 .map(quiz -> {

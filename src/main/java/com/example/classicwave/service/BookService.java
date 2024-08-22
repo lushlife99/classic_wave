@@ -25,6 +25,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.io.UnsupportedEncodingException;
@@ -61,7 +62,7 @@ public class BookService {
         return new BookDto(book);
     }
 
-    @Transactional
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
     public Book saveBook(EBookRequest bookRequest) {
         Book book = bookRequest.toEntity();
         return bookRepository.save(book);
@@ -104,7 +105,6 @@ public class BookService {
      *  DTO에 바로 매핑
      */
     @Transactional(readOnly = true)
-    @Cacheable(value = "books", key = "#searchCond + '_' + #page", condition = "#page == 0")
     public List<BookDto> searchBookList(Pageable pageable, SearchCond searchCond, int page) {
 
         if (searchCond == SearchCond.popular) {

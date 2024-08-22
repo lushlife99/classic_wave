@@ -90,8 +90,6 @@ public class CartoonCreationService {
             book.setAuthorName(sceneListResponse.author());
             book.setPublishedYear(sceneListResponse.pubYear());
 
-            System.out.println(sceneListResponse);
-
             if (sceneListResponse.copyRight()) {
                 throw new CustomException(ErrorCode.COPYRIGHT_BOOK);
             }

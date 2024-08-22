@@ -30,7 +30,7 @@ spring:
       connection-test-query: SELECT 1
       minimumIdle: 2
       maximumPoolSize: 20
-      connectionTimeout: 300000
+      connectionTimeout: 15000
     driver-class-name: com.mysql.cj.jdbc.Driver
     url: jdbc:mysql://classic-wave.cvwu0m44spce.ap-northeast-2.rds.amazonaws.com:3306/classic_wave?serverTimezone=Asia/Seoul&useLegacyDatetimeCode=false&characterEncoding=UTF-8
     username: admin

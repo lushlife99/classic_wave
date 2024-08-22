@@ -86,6 +86,7 @@ public class BookService {
         try {
             encodedSearchText = URLEncoder.encode(searchText, "UTF-8");
         } catch (UnsupportedEncodingException e) {
+            e.printStackTrace();
             throw new CustomException(ErrorCode.INTERNAL_SERVER_ERROR);
         }
 

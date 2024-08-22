@@ -1,7 +1,5 @@
 package com.example.classicwave.openFeign.stabilityai;
 
-import com.example.classicwave.openFeign.stabilityai.request.ImageRequest;
-import feign.RequestLine;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.core.io.Resource;
 import org.springframework.web.bind.annotation.*;

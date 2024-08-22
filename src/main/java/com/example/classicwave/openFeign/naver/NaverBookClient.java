@@ -1,7 +1,5 @@
 package com.example.classicwave.openFeign.naver;
 
-
-import com.example.classicwave.openFeign.gutenberg.FeignConfig;
 import com.example.classicwave.openFeign.naver.response.NaverBookResponse;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -10,7 +8,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 @FeignClient(
         name = "naver-book-serach-service",
         url = "https://openapi.naver.com",
-        configuration = FeignConfig.class
+        configuration = NaverBookConfig.class
 )
 public interface NaverBookClient {
     @GetMapping("/v1/search/book.json")

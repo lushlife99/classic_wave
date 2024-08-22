@@ -35,7 +35,6 @@ public class QuizController {
 
             QuizListWithIdResponse quizResponse = quizService.getQuizList(bookTitle);
             return ResponseEntity.ok(quizResponse);
-
     }
 
     @PostMapping("/submit")

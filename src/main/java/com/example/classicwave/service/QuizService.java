@@ -96,7 +96,7 @@ public class QuizService {
 
 
     // 퀴즈 생성
-    @Transactional
+
     public QuizListResponse createQuiz(String title){
 
         BeanOutputConverter<QuizListResponse> outputConverter = new BeanOutputConverter<>(QuizListResponse.class);
@@ -119,7 +119,7 @@ public class QuizService {
     }
 
     // 퀴즈 생성과 저장
-    @Transactional
+
     public QuizListWithIdResponse createAndSaveQuiz(String title) {
 
         Book book = bookRepository.findByName(title)
@@ -228,7 +228,5 @@ public class QuizService {
         }
         quizRepository.save(quiz);
     }
-
-
 }
 

@@ -26,13 +26,14 @@ spring:
       port: 6379
   datasource:
     hikari:
-      max-lifetime: 30000
       connection-test-query: SELECT 1
       minimumIdle: 2
-      maximumPoolSize: 20
-      connectionTimeout: 15000
+      maximumPoolSize: 10
+      idleTimeout: 120000
+      connectionTimeout: 300000
+      leakDetectionThreshold: 300000
     driver-class-name: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://classic-wave.cvwu0m44spce.ap-northeast-2.rds.amazonaws.com:3306/classic_wave?serverTimezone=Asia/Seoul&useLegacyDatetimeCode=false&characterEncoding=UTF-8
+    url: jdbc:mysql://database-2.cvwu0m44spce.ap-northeast-2.rds.amazonaws.com:3306/classic_wave?autoReconnect=true&useSSL=false
     username: admin
     password: admin1234
   jpa:
@@ -41,7 +42,6 @@ spring:
     properties:
       hibernate:
         format_sql: true
-        dialect: org.hibernate.dialect.MySQLDialect
     open-in-view: false
   ai:
     stabilityai:
@@ -53,6 +53,7 @@ spring:
           style-preset: anime
     openai:
       api-key: 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
+
 
 server:
   servlet:

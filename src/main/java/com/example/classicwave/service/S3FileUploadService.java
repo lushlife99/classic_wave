@@ -4,6 +4,10 @@ import com.amazonaws.services.s3.AmazonS3Client;
 import com.amazonaws.services.s3.model.GetObjectRequest;
 import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.amazonaws.services.s3.model.S3Object;
+import com.example.classicwave.domain.Book;
+import com.example.classicwave.error.CustomException;
+import com.example.classicwave.error.ErrorCode;
+import com.example.classicwave.repository.BookRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.codec.binary.Base64;
@@ -25,6 +29,7 @@ import java.util.List;
 public class S3FileUploadService {
 
     private final AmazonS3Client amazonS3Client;
+    private final BookRepository bookRepository;
 
     @Value("${cloud.aws.s3.bucket}")
     private String bucket;
@@ -41,6 +46,11 @@ public class S3FileUploadService {
         S3Object imageObject = amazonS3Client.getObject(new GetObjectRequest(bucket, folderName + "/" + fileName));
         InputStream imageInputStream = imageObject.getObjectContent();
         return new InputStreamResource(imageInputStream);
+    }
+
+    public Resource getBookThumbnail(Long bookId) {
+        Book book = bookRepository.findById(bookId).orElseThrow(() -> new CustomException(ErrorCode.BAD_REQUEST));
+        return getImage(book.getFolderName(), book.getSceneList().get(0).getPhotoId());
     }
 
     public void uploadImages(List<Resource> imageResults, String folderName) throws IOException {

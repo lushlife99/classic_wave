@@ -16,7 +16,7 @@ import java.util.List;
 @Builder
 public class Quiz {
 
-    @Id @GeneratedValue
+    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @Column(columnDefinition="LONGTEXT")

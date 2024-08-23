@@ -19,7 +19,6 @@ public class EBookRequest {
     public Book toEntity() {
         return Book.builder()
                 .name(this.getName())
-                .isbnId(this.getIsbnId())
                 .folderName(UUID.randomUUID().toString())
                 .sceneList(new ArrayList<>())
                 .build();

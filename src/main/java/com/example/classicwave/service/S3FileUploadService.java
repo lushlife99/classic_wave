@@ -18,11 +18,13 @@ import org.springframework.core.io.InputStreamResource;
 import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StreamUtils;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -98,4 +100,29 @@ public class S3FileUploadService {
 
         }
     }
+
+    public String uploadProfileImage(Resource image) throws IOException {
+
+        byte[] imageBytes = StreamUtils.copyToByteArray(image.getInputStream());
+
+
+        String fileName = Image_FILE_PREFIX + ".png";
+        String uuid = UUID.randomUUID().toString();
+        String s3Key = "user/" + uuid + "/" + fileName;
+
+
+        try (InputStream imageInputStream = new ByteArrayInputStream(imageBytes)) {
+            ObjectMetadata metadata = new ObjectMetadata();
+            metadata.setContentLength(imageBytes.length);
+            metadata.setContentType("image/png");
+
+            amazonS3Client.putObject(bucket, s3Key, imageInputStream, metadata);
+
+            return amazonS3Client.getUrl(bucket, s3Key).toString();
+        } catch (IOException e) {
+            log.error("Failed to upload image: {}", fileName, e);
+            throw e;
+        }
+    }
+
 }

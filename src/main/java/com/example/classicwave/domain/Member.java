@@ -34,8 +34,7 @@ public class Member implements UserDetails {
 
     private String introduction;
 
-    // 사진 url
-    //private String profilePictureUrl;
+    private String profileImageUrl;
 
     private int rating;
 

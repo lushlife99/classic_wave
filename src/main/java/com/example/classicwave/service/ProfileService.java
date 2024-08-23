@@ -19,7 +19,7 @@ public class ProfileService {
         Member member = memberRepository.findById(UserId)
                 .orElseThrow(()-> new RuntimeException("잘못된 요청 입니다."));
 
-        return new MemberDto(member.getUsername(),member.getIntroduction());
+        return new MemberDto(member.getName(),member.getIntroduction());
     }
 
     @Transactional
@@ -28,7 +28,7 @@ public class ProfileService {
                 .orElseThrow(() -> new RuntimeException("잘못된 요청입니다."));
 
         if (username != null && !username.isEmpty()) {
-            member.setLogInId(username);
+            member.setName(username);
         }
         if (introduction != null) {
             member.setIntroduction(introduction);
@@ -36,6 +36,6 @@ public class ProfileService {
 
         memberRepository.save(member);
 
-        return new MemberDto(member.getUsername(), member.getIntroduction());
+        return new MemberDto(member.getName(), member.getIntroduction());
     }
 }

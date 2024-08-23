@@ -7,10 +7,15 @@ import com.example.classicwave.service.ProfileService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
+import org.springframework.core.io.InputStreamResource;
+import org.springframework.core.io.Resource;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.io.IOException;
 
 @Tag(name = "프로필", description = "프로필 조회 및 수정")
 @RequestMapping("/api/profile")
@@ -38,17 +43,23 @@ public class ProfileController {
 
 
     @PatchMapping
-    @Operation(summary = "유저 프로필 업데이트", description = "사용자의 프로필 정보를 업데이트합니다. 사용자는 이름, 소개, 프로필 사진 등을 변경할 수 있습니다.")
-    public ResponseEntity<MemberDto> updateUserProfile(@RequestBody MemberDto memberDto) {
+    @Operation(summary = "유저 프로필 업데이트", description = "사용자의 프로필 정보를 업데이트합니다.")
+    public ResponseEntity<MemberDto> updateUserProfile(
+            @RequestParam("name") String name,
+            @RequestParam("introduction") String introduction,
+            @RequestParam(value = "profileImage", required = false) MultipartFile profileImage) throws IOException {
 
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-
         String logInId = authentication.getName();
 
         Member member = memberRepository.findByLogInId(logInId)
                 .orElseThrow(() -> new RuntimeException("잘못된 사용자 요청입니다."));
-        MemberDto updatedProfile = profileService.updateProfile(member.getId(), memberDto.getName(), memberDto.getIntroduction());
+
+        Resource resource = new InputStreamResource(profileImage.getInputStream());
+
+        MemberDto updatedProfile = profileService.updateProfile(member.getId(), name, introduction, resource);
 
         return ResponseEntity.ok(updatedProfile);
     }
+
 }

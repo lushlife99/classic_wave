@@ -6,6 +6,7 @@ import com.example.classicwave.dto.request.BookCreateRequest;
 import com.example.classicwave.dto.domain.BookDto;
 import com.example.classicwave.dto.request.EBookRequest;
 import com.example.classicwave.dto.response.BookCreateResponse;
+import com.example.classicwave.dto.response.PlotListResponse;
 import com.example.classicwave.enums.SearchCond;
 import com.example.classicwave.error.CustomException;
 import com.example.classicwave.error.ErrorCode;
@@ -30,6 +31,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
+import java.time.LocalDateTime;
 import java.util.*;
 
 @Service
@@ -48,7 +50,7 @@ public class BookService {
     private final static int PAGE_SIZE = 10;
 
     public void postToScheduler(EBookRequest bookRequest) {
-        String key = EBOOK_REQUEST_PREFIX + ":" + bookRequest.getIsbnId();
+        String key = EBOOK_REQUEST_PREFIX + ":" + bookRequest.getName();
 
         if(eBookRedisTemplate.hasKey(key))
             throw new CustomException(ErrorCode.ALREADY_POSTED_CLASSIC);
@@ -62,9 +64,10 @@ public class BookService {
         return new BookDto(book);
     }
 
-    @Transactional(propagation = Propagation.REQUIRES_NEW)
-    public Book saveBook(EBookRequest bookRequest) {
+    public Book saveBook(EBookRequest bookRequest, PlotListResponse sceneListResponse) {
         Book book = bookRequest.toEntity();
+        book.setAuthorName(sceneListResponse.author());
+        book.setPublishedYear(sceneListResponse.pubYear());
         return bookRepository.save(book);
     }
 
@@ -160,29 +163,26 @@ public class BookService {
     }
 
 
-    /**
-     * Test method
-     * @param size
-     */
-    public void createTestBookList(int size) {
+    @Transactional
+    public void createTestBookList() {
 
         List<Book> bookList = new ArrayList<>();
 
-        for (int i = 1; i <= size; i++) {
+        for (int i = 1; i <= 11; i++) {
             Book book = Book.builder()
                     .name("test book title" + i)
-                    .isbnId("test book isbnid" + i)
                     .authorName("test book author" + i)
                     .folderName(UUID.randomUUID().toString())
+                    .publishedYear(1234)
+                    .createdTime(LocalDateTime.now())
                     .sceneList(new ArrayList<>())
                     .build();
 
             bookList.add(book);
         }
 
-        List<Book> books = bookRepository.saveAll(bookList);
-
-        for (Book book : books) {
+        bookList = bookRepository.saveAll(bookList);
+        for (Book book : bookList) {
             redisTemplate.opsForZSet().add(SORTED_TOTAL_LIKES_KEY, book.getId().toString(), 1);
 
         }
@@ -193,7 +193,6 @@ public class BookService {
 
         Book book = Book.builder()
                 .name(request.getBookName())
-                .isbnId(request.getIsbn_id())
                 .authorName(request.getAuthor_name())
                 .folderName(request.getFolder_name())
                 .build();
@@ -202,7 +201,6 @@ public class BookService {
 
         BookCreateResponse response = new BookCreateResponse(
                 saveBook.getName(),
-                saveBook.getIsbnId(),
                 saveBook.getCreatedTime(),
                 saveBook.getAuthorName(),
                 saveBook.getFolderName()

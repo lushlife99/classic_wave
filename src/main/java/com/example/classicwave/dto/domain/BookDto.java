@@ -28,7 +28,6 @@ public class BookDto {
 
     public BookDto(Book book) {
         this.id = book.getId();
-        this.isbnId = book.getIsbnId();
         this.authorName = book.getAuthorName();
         this.name = book.getName();
         this.folderName = book.getFolderName();

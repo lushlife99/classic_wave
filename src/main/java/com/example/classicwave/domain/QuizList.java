@@ -15,11 +15,8 @@ import java.util.List;
 @Builder
 public class QuizList {
 
-    @Id @GeneratedValue
+    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-
-    @OneToMany(mappedBy = "quizList")
-    private List<QuizSubmit> quizSubmitList;
 
     @OneToOne
     private Book book;

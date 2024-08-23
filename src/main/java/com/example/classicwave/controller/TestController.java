@@ -31,7 +31,7 @@ public class TestController {
 
     @PostMapping("/create/book-list")
     public ResponseEntity createTestBookList() {
-        bookService.createTestBookList(31);
+        bookService.createTestBookList();
         return ResponseEntity.ok().build();
     }
 

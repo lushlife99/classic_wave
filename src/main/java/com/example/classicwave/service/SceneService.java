@@ -3,7 +3,8 @@ package com.example.classicwave.service;
 import com.example.classicwave.domain.Book;
 import com.example.classicwave.domain.Scene;
 import com.example.classicwave.dto.domain.SceneDto;
-import com.example.classicwave.dto.response.SceneListResponse;
+import com.example.classicwave.dto.response.PlotListResponse;
+import com.example.classicwave.dto.response.SceneDescriptionResponse;
 import com.example.classicwave.dto.response.SceneResponse;
 import com.example.classicwave.error.CustomException;
 import com.example.classicwave.error.ErrorCode;
@@ -15,6 +16,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -23,15 +25,25 @@ public class SceneService {
     private final SceneRepository sceneRepository;
     private final S3FileUploadService s3Service;
 
-    public List<Scene> saveSceneList(Book book, SceneListResponse sceneListResponse) {
-        List<SceneResponse> sceneResponses = sceneListResponse.sceneResponseList();
+    public List<Scene> saveSceneList(Book book, SceneDescriptionResponse sceneListResponse, PlotListResponse plotListResponse) {
         List<Scene> sceneList = new ArrayList<>();
-        for (SceneResponse sceneResponse : sceneResponses) {
-            Scene scene = sceneResponse.toEntity(book);
+
+        for(int i = 0; i < plotListResponse.plotList().size(); i++) {
+            String plot = plotListResponse.plotList().get(i);
+            String description = sceneListResponse.descriptionList().get(i);
+
+            Scene scene = Scene.builder()
+                    .plotSummary(plot)
+                    .book(book)
+                    .description(description)
+                    .photoId(UUID.randomUUID().toString())
+                    .build();
+
             sceneList.add(scene);
         }
 
         return sceneRepository.saveAll(sceneList);
+
     }
 
     @Transactional(readOnly = true)

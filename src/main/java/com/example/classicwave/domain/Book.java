@@ -19,10 +19,9 @@ import java.util.List;
 @Builder
 public class Book {
 
-    @Id @GeneratedValue
+    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private String isbnId;
     private String authorName;
     @Column(unique = true)
     private String name;

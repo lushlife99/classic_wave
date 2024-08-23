@@ -9,7 +9,6 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 public class BookCreateResponse {
     private String bookName;
-    private String isbn_id;
     private LocalDateTime createdTime;
     //private int likes;
     private String author_name;

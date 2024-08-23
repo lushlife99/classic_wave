@@ -1,18 +1,14 @@
 package com.example.classicwave.service;
 
-import com.amazonaws.util.StringUtils;
 import com.example.classicwave.domain.Book;
 import com.example.classicwave.domain.Scene;
 import com.example.classicwave.dto.request.EBookRequest;
-import com.example.classicwave.dto.response.SceneListResponse;
-import com.example.classicwave.dto.response.SceneResponse;
-import com.example.classicwave.error.CustomException;
-import com.example.classicwave.error.ErrorCode;
+import com.example.classicwave.dto.response.PlotListResponse;
+import com.example.classicwave.dto.response.SceneDescriptionResponse;
 import com.example.classicwave.openFeign.gutenberg.GutenbergApiClient;
-import com.example.classicwave.openFeign.gutenberg.response.BookResult;
-import com.example.classicwave.openFeign.gutenberg.response.BookSearchResponse;
 import com.example.classicwave.openFeign.stabilityai.StabilityAiClient;
 import com.example.classicwave.repository.BookRepository;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -21,10 +17,6 @@ import org.springframework.ai.chat.prompt.Prompt;
 import org.springframework.ai.chat.prompt.PromptTemplate;
 import org.springframework.ai.chat.prompt.SystemPromptTemplate;
 import org.springframework.ai.converter.BeanOutputConverter;
-import org.springframework.ai.image.ImageGeneration;
-import org.springframework.ai.image.ImageModel;
-import org.springframework.ai.image.ImagePrompt;
-import org.springframework.ai.image.ImageResponse;
 import org.springframework.ai.openai.OpenAiAudioSpeechModel;
 import org.springframework.ai.openai.OpenAiAudioSpeechOptions;
 import org.springframework.ai.openai.OpenAiChatModel;
@@ -34,31 +26,29 @@ import org.springframework.ai.openai.audio.speech.Speech;
 import org.springframework.ai.openai.audio.speech.SpeechPrompt;
 import org.springframework.ai.openai.audio.speech.SpeechResponse;
 import org.springframework.ai.stabilityai.StabilityAiImageModel;
-import org.springframework.ai.stabilityai.StyleEnum;
-import org.springframework.ai.stabilityai.api.StabilityAiImageOptions;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.Resource;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
-import java.io.CharConversionException;
 import java.io.IOException;
-import java.net.URLEncoder;
-import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-
 
 @Service
 @RequiredArgsConstructor
 @Slf4j
 public class CartoonCreationService {
 
-    @Value("classpath:/prompts/scene-generation-system-message.st")
-    private Resource sceneSystemPrompt;
+    @Value("classpath:/prompts/scene-description-system-prompt.st")
+    private Resource sceneDescriptionSystemPrompt;
+    @Value("classpath:/prompts/plot-generation-system-message.st")
+    private Resource plotSystemPrompt;
+    @Value("classpath:/prompts/scene-generation-user-message.st")
+    private Resource sceneDescriptionUserPrompt;
+
     @Value("classpath:/prompts/book-info-user-message.st")
     private Resource sceneUserPrompt;
     private final static String IMAGE_PREFIX = "/image";
@@ -82,58 +72,79 @@ public class CartoonCreationService {
 
         if (optionalBook.isEmpty()) {
 
-            // 1. Create Book entity
-            Book book = bookService.saveBook(bookRequest);
+            PlotListResponse plotListResponse = getPlotListAndBookInfo(bookRequest);
+            System.out.println("plotListResponse = " + plotListResponse);
+            SceneDescriptionResponse sceneDescriptions = getSceneDescriptions(plotListResponse);
+            System.out.println("sceneDescriptions = " + sceneDescriptions);
+            Book book = bookService.saveBook(bookRequest, plotListResponse);
 
-            // 2. Create SceneList to asking GPT model
-            SceneListResponse sceneListResponse = getSceneListByBookInfo(book);
-            book.setAuthorName(sceneListResponse.author());
-            book.setPublishedYear(sceneListResponse.pubYear());
+//            if (sceneListResponse.copyRight()) {
+//                throw new CustomException(ErrorCode.COPYRIGHT_BOOK);
+//            }
 
-            if (sceneListResponse.copyRight()) {
-                throw new CustomException(ErrorCode.COPYRIGHT_BOOK);
-            }
-
-            // 3. Create SceneList
-            List<Scene> scenes = sceneService.saveSceneList(book, sceneListResponse);
-
-            List<Resource> images = generateImages(sceneListResponse);
+//            // 3. Create SceneList
+            List<Scene> scenes = sceneService.saveSceneList(book, sceneDescriptions, plotListResponse);
+//
+            List<Resource> images = generateImages(sceneDescriptions);
             s3Service.uploadImages(images, book.getFolderName() + IMAGE_PREFIX);
 
-            List<Speech> speeches = generateAudios(sceneListResponse);
-            s3Service.uploadAudios(speeches, book.getFolderName() + AUDIO_PREFIX);
+//            List<Speech> speeches = generateAudios(sceneListResponse);
+//            s3Service.uploadAudios(speeches, book.getFolderName() + AUDIO_PREFIX);
 
             book.setSceneList(scenes);
-
         }
     }
 
-    public SceneListResponse getSceneListByBookInfo(Book book) {
-
-        BeanOutputConverter<SceneListResponse> outputConverter = new BeanOutputConverter<>(SceneListResponse.class);
-        PromptTemplate userPrompt = getUserPrompt(book.getName(), outputConverter.getFormat());
-        SystemPromptTemplate systemPrompt = new SystemPromptTemplate(sceneSystemPrompt);
-
-        // Prompt 생성 시 topP 설정 추가
+    public PlotListResponse getPlotListAndBookInfo(EBookRequest eBookRequest) {
+        BeanOutputConverter<PlotListResponse> outputConverter = new BeanOutputConverter<>(PlotListResponse.class);
+        PromptTemplate userPrompt = getUserPrompt(eBookRequest.getName(), outputConverter.getFormat());
+        SystemPromptTemplate systemPrompt = new SystemPromptTemplate(plotSystemPrompt);
         Prompt prompt = new Prompt(List.of(userPrompt.createMessage(), systemPrompt.createMessage()),
                 OpenAiChatOptions.builder()
                         .withMaxTokens(4095)
                         .build());
 
-        System.out.println(prompt);
-
         Generation result = openAiChatModel.call(prompt).getResult();
-
-        System.out.println(result);
-
         return outputConverter.convert(result.getOutput().getContent());
     }
 
+    public SceneDescriptionResponse getSceneDescriptions(PlotListResponse plotListResponse) {
+        BeanOutputConverter<SceneDescriptionResponse> outputConverter = new BeanOutputConverter<>(SceneDescriptionResponse.class);
+        PromptTemplate userPrompt = generateSceneUserPrompt(plotListResponse, outputConverter.getFormat());
+        SystemPromptTemplate systemPrompt = new SystemPromptTemplate(sceneDescriptionSystemPrompt);
+        Prompt prompt = new Prompt(List.of(userPrompt.createMessage(), systemPrompt.createMessage()),
+                OpenAiChatOptions.builder()
+                        .withMaxTokens(4095)
+                        .build());
 
-    public List<Resource> generateImages(SceneListResponse sceneListResponse) {
-        List<String> prompts = sceneListResponse.sceneResponseList().stream()
-                .map(SceneResponse::description)
-                .toList();
+        Generation result = openAiChatModel.call(prompt).getResult();
+        return outputConverter.convert(result.getOutput().getContent());
+    }
+
+//    public SceneListResponse getSceneListByBookInfo(EBookRequest bookRequest) {
+//
+//        BeanOutputConverter<SceneListResponse> outputConverter = new BeanOutputConverter<>(SceneListResponse.class);
+//        PromptTemplate userPrompt = getUserPrompt(bookRequest.getName(), outputConverter.getFormat());
+//        SystemPromptTemplate systemPrompt = new SystemPromptTemplate(sceneSystemPrompt);
+//
+//        // Prompt 생성 시 topP 설정 추가
+//        Prompt prompt = new Prompt(List.of(userPrompt.createMessage(), systemPrompt.createMessage()),
+//                OpenAiChatOptions.builder()
+//                        .withMaxTokens(4095)
+//                        .build());
+//
+//        System.out.println(prompt);
+//
+//        Generation result = openAiChatModel.call(prompt).getResult();
+//
+//        System.out.println(result);
+//
+//        return outputConverter.convert(result.getOutput().getContent());
+//    }
+
+
+    public List<Resource> generateImages(SceneDescriptionResponse sceneDescriptionResponse) {
+        List<String> prompts = sceneDescriptionResponse.descriptionList();
 
         List<Resource> imageResults = new ArrayList<>();
         for (String prompt : prompts) {
@@ -144,10 +155,8 @@ public class CartoonCreationService {
         return imageResults;
     }
 
-    public List<Speech> generateAudios(SceneListResponse sceneListResponse) {
-        List<String> prompts = sceneListResponse.sceneResponseList().stream()
-                .map(SceneResponse::content)
-                .toList();
+    public List<Speech> generateAudios(PlotListResponse plotListResponse) {
+        List<String> prompts = plotListResponse.plotList();
 
         List<Speech> speechResult = new ArrayList<>();
 
@@ -167,11 +176,21 @@ public class CartoonCreationService {
         return speechResult;
     }
 
+    public PromptTemplate generateSceneUserPrompt(PlotListResponse response, String format) {
+        StringBuilder stringBuilder = new StringBuilder();
+        for (String plot : response.plotList()) {
+            stringBuilder.append("plot: " + plot + "\n");
+        }
+
+        return new PromptTemplate(sceneDescriptionUserPrompt, Map.of("summary", stringBuilder.toString(), "format", format));
+    }
+
     private PromptTemplate getUserPrompt(String title, String format) {
         return new PromptTemplate(sceneUserPrompt, Map.of("title", title, "format", format));
     }
 
     public Resource imageGenerate(String prompt) {
+
         return stabilityAiClient.generateImage(prompt, "comic-book");
     }
 }

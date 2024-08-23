@@ -17,6 +17,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -35,6 +36,7 @@ public class S3FileUploadService {
     private String bucket;
 
     private final static String AUDIO_FILE_PREFIX = "audio";
+    private final static String Image_FILE_PREFIX = "image";
 
     public Resource getImage(String folderName, String fileName) {
         S3Object imageObject = amazonS3Client.getObject(new GetObjectRequest(bucket, folderName + "/" + fileName));
@@ -48,15 +50,16 @@ public class S3FileUploadService {
         return new InputStreamResource(imageInputStream);
     }
 
+    @Transactional(readOnly = true)
     public Resource getBookThumbnail(Long bookId) {
         Book book = bookRepository.findById(bookId).orElseThrow(() -> new CustomException(ErrorCode.BAD_REQUEST));
-        return getImage(book.getFolderName(), book.getSceneList().get(0).getPhotoId());
+        return getImage(book.getFolderName(), Image_FILE_PREFIX + "0");
     }
 
     public void uploadImages(List<Resource> imageResults, String folderName) throws IOException {
         for (int i = 0; i < imageResults.size(); i++) {
             Resource image = imageResults.get(i);
-            String fileName = "image" + i + ".png";
+            String fileName = Image_FILE_PREFIX + i + ".png";
             String s3Key = folderName + "/" + fileName;
 
             try (InputStream imageInputStream = image.getInputStream()) {

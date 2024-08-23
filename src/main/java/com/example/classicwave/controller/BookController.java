@@ -100,7 +100,7 @@ public class BookController {
     }
 
     @GetMapping("/thumbnail")
-    public Resource getBookThumbnail(Long bookId) {
+    public Resource getBookThumbnail(@RequestParam("bookId") long bookId) {
         return s3FileUploadService.getBookThumbnail(bookId);
     }
 

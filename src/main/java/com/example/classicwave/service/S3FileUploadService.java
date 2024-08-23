@@ -39,6 +39,9 @@ public class S3FileUploadService {
     private final static String Image_FILE_PREFIX = "image";
 
     public Resource getImage(String folderName, String fileName) {
+        System.out.println("folderName = " + folderName);
+
+        System.out.println("fileName = " + fileName);
         S3Object imageObject = amazonS3Client.getObject(new GetObjectRequest(bucket, folderName + "/" + fileName));
         InputStream imageInputStream = imageObject.getObjectContent();
         return new InputStreamResource(imageInputStream);
@@ -53,7 +56,7 @@ public class S3FileUploadService {
     @Transactional(readOnly = true)
     public Resource getBookThumbnail(Long bookId) {
         Book book = bookRepository.findById(bookId).orElseThrow(() -> new CustomException(ErrorCode.BAD_REQUEST));
-        return getImage(book.getFolderName(), Image_FILE_PREFIX + "0");
+        return getImage(book.getFolderName() + "/image", Image_FILE_PREFIX + "0.png");
     }
 
     public void uploadImages(List<Resource> imageResults, String folderName) throws IOException {

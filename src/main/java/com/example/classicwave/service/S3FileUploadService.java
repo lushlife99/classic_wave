@@ -42,7 +42,6 @@ public class S3FileUploadService {
 
     public Resource getImage(String folderName, String fileName) {
         System.out.println("folderName = " + folderName);
-
         System.out.println("fileName = " + fileName);
         S3Object imageObject = amazonS3Client.getObject(new GetObjectRequest(bucket, folderName + "/" + fileName));
         InputStream imageInputStream = imageObject.getObjectContent();
@@ -101,11 +100,10 @@ public class S3FileUploadService {
         }
     }
 
-    public String uploadProfileImage(Resource image) throws IOException {
+    public String uploadProfileImage(Resource image, Long id) throws IOException {
 
-        String fileName = Image_FILE_PREFIX + ".png";
-        String uuid = UUID.randomUUID().toString();
-        String s3Key = "user/" + uuid + "/" + fileName;
+        String fileName =  Image_FILE_PREFIX +id+".png";
+        String s3Key = "user/" + fileName;
 
         try (InputStream imageInputStream = image.getInputStream()) {
             byte[] imageBytes = StreamUtils.copyToByteArray(imageInputStream);
@@ -116,11 +114,13 @@ public class S3FileUploadService {
 
             amazonS3Client.putObject(bucket, s3Key, new ByteArrayInputStream(imageBytes), metadata);
 
-            return amazonS3Client.getUrl(bucket, s3Key).toString();
+            return fileName;
         } catch (IOException e) {
             log.error("Failed to upload image: {}", fileName, e);
             throw e;
         }
     }
+
+
 
 }

@@ -4,6 +4,7 @@ import com.amazonaws.services.s3.AmazonS3Client;
 import com.amazonaws.services.s3.model.GetObjectRequest;
 import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.amazonaws.services.s3.model.S3Object;
+import com.amazonaws.services.s3.model.S3ObjectInputStream;
 import com.example.classicwave.domain.Book;
 import com.example.classicwave.error.CustomException;
 import com.example.classicwave.error.ErrorCode;
@@ -14,6 +15,7 @@ import org.apache.commons.codec.binary.Base64;
 import org.springframework.ai.image.ImageGeneration;
 import org.springframework.ai.openai.audio.speech.Speech;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.io.ByteArrayResource;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Service;
@@ -44,8 +46,14 @@ public class S3FileUploadService {
         System.out.println("folderName = " + folderName);
         System.out.println("fileName = " + fileName);
         S3Object imageObject = amazonS3Client.getObject(new GetObjectRequest(bucket, folderName + "/" + fileName));
-        InputStream imageInputStream = imageObject.getObjectContent();
-        return new InputStreamResource(imageInputStream);
+        byte[] bytes = new byte[0];
+        try {
+            bytes = imageObject.getObjectContent().readAllBytes();
+        } catch (IOException e) {
+            throw new CustomException(ErrorCode.INTERNAL_SERVER_ERROR);
+        }
+
+        return new ByteArrayResource(bytes);
     }
 
     public Resource getAudio(String folderName, String fileName) {
@@ -106,13 +114,10 @@ public class S3FileUploadService {
         String s3Key = "user/" + fileName;
 
         try (InputStream imageInputStream = image.getInputStream()) {
-            byte[] imageBytes = StreamUtils.copyToByteArray(imageInputStream);
 
             ObjectMetadata metadata = new ObjectMetadata();
-            metadata.setContentLength(imageBytes.length);
             metadata.setContentType("image/png");
-
-            amazonS3Client.putObject(bucket, s3Key, new ByteArrayInputStream(imageBytes), metadata);
+            amazonS3Client.putObject(bucket, s3Key, imageInputStream, metadata);
 
             return fileName;
         } catch (IOException e) {

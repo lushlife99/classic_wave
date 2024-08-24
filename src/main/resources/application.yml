@@ -57,6 +57,12 @@ spring:
         options:
           model: gpt-4o-mini
 
+  servlet:
+    multipart:
+      enabled: true
+      max-file-size: 20MB
+      max-request-size: 30MB
+
 server:
   servlet:
     cookie:

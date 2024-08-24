@@ -29,7 +29,7 @@ public class ProfileController {
 
     @GetMapping
     @Operation(summary = "유저 프로필 조회", description = "사용자의 프로필 정보를 조회.")
-    public ResponseEntity<MemberDto> getUserProfile() {
+    public MemberDto getUserProfile() throws IOException {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
         String logInId = authentication.getName();
@@ -39,7 +39,7 @@ public class ProfileController {
 
         // 로그인 ID로 프로필 조회
         MemberDto memberDto = profileService.getProfile(member.getId());
-        return ResponseEntity.ok(memberDto);
+        return memberDto;
     }
 
 

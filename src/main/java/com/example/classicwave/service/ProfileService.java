@@ -14,6 +14,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.net.URL;
+import java.util.Arrays;
 import java.util.UUID;
 
 @Service
@@ -24,7 +25,7 @@ public class ProfileService {
     private final S3FileUploadService s3FileUploadService;
 
     @Transactional
-    public MemberDto getProfile(Long userId) {
+    public MemberDto getProfile(Long userId) throws IOException {
         Member member = memberRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("잘못된 요청입니다."));
 
@@ -33,6 +34,8 @@ public class ProfileService {
                 ? s3FileUploadService.getImage("user", member.getImagename())
                 : null;
 
+        System.out.println("profileImageResource = " + profileImageResource.getContentAsByteArray());
+        System.out.println(2);
         return new MemberDto(member.getName(), member.getIntroduction(), profileImageResource);
     }
 

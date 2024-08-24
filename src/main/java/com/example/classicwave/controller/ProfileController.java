@@ -7,6 +7,7 @@ import com.example.classicwave.service.ProfileService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
+import org.springframework.core.io.ByteArrayResource;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.core.io.Resource;
 import org.springframework.http.ResponseEntity;
@@ -55,7 +56,11 @@ public class ProfileController {
         Member member = memberRepository.findByLogInId(logInId)
                 .orElseThrow(() -> new RuntimeException("잘못된 사용자 요청입니다."));
 
-        Resource resource = new InputStreamResource(profileImage.getInputStream());
+        Resource resource = null;
+        if (profileImage != null && !profileImage.isEmpty()) {
+            byte[] bytes = profileImage.getBytes();
+            resource = new ByteArrayResource(bytes);
+        };
 
         MemberDto updatedProfile = profileService.updateProfile(member.getId(), name, introduction, resource);
 

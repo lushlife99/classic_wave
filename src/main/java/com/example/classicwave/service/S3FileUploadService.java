@@ -103,20 +103,18 @@ public class S3FileUploadService {
 
     public String uploadProfileImage(Resource image) throws IOException {
 
-        byte[] imageBytes = StreamUtils.copyToByteArray(image.getInputStream());
-
-
         String fileName = Image_FILE_PREFIX + ".png";
         String uuid = UUID.randomUUID().toString();
         String s3Key = "user/" + uuid + "/" + fileName;
 
+        try (InputStream imageInputStream = image.getInputStream()) {
+            byte[] imageBytes = StreamUtils.copyToByteArray(imageInputStream);
 
-        try (InputStream imageInputStream = new ByteArrayInputStream(imageBytes)) {
             ObjectMetadata metadata = new ObjectMetadata();
             metadata.setContentLength(imageBytes.length);
             metadata.setContentType("image/png");
 
-            amazonS3Client.putObject(bucket, s3Key, imageInputStream, metadata);
+            amazonS3Client.putObject(bucket, s3Key, new ByteArrayInputStream(imageBytes), metadata);
 
             return amazonS3Client.getUrl(bucket, s3Key).toString();
         } catch (IOException e) {

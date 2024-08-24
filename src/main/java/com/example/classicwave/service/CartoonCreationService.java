@@ -32,10 +32,7 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 
 @Service
 @RequiredArgsConstructor
@@ -65,6 +62,7 @@ public class CartoonCreationService {
     private final OpenAiChatModel openAiChatModel;
     private final RedisTemplate<String, EBookRequest> redisTemplate;
 
+    // 나중에 Transactional 수정
     @Transactional
     public void createCartoon(String key) throws IOException {
         EBookRequest bookRequest = redisTemplate.opsForSet().pop(key);
@@ -76,22 +74,24 @@ public class CartoonCreationService {
             System.out.println("plotListResponse = " + plotListResponse);
             SceneDescriptionResponse sceneDescriptions = getSceneDescriptions(plotListResponse);
             System.out.println("sceneDescriptions = " + sceneDescriptions);
-            Book book = bookService.saveBook(bookRequest, plotListResponse);
+            Book book = bookRequest.toEntity();
+            book.setAuthorName(plotListResponse.author());
+            book.setPublishedYear(plotListResponse.pubYear());
 
 //            if (sceneListResponse.copyRight()) {
 //                throw new CustomException(ErrorCode.COPYRIGHT_BOOK);
 //            }
 
 //            // 3. Create SceneList
+            bookRepository.save(book);
             List<Scene> scenes = sceneService.saveSceneList(book, sceneDescriptions, plotListResponse);
-//
+
             List<Resource> images = generateImages(sceneDescriptions);
             s3Service.uploadImages(images, book.getFolderName() + IMAGE_PREFIX);
 
 //            List<Speech> speeches = generateAudios(sceneListResponse);
 //            s3Service.uploadAudios(speeches, book.getFolderName() + AUDIO_PREFIX);
 
-            book.setSceneList(scenes);
         }
     }
 
@@ -116,6 +116,8 @@ public class CartoonCreationService {
                 OpenAiChatOptions.builder()
                         .withMaxTokens(4095)
                         .build());
+
+        System.out.println(prompt);
 
         Generation result = openAiChatModel.call(prompt).getResult();
         return outputConverter.convert(result.getOutput().getContent());

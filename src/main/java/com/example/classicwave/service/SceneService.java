@@ -25,6 +25,7 @@ public class SceneService {
     private final SceneRepository sceneRepository;
     private final S3FileUploadService s3Service;
 
+    @Transactional
     public List<Scene> saveSceneList(Book book, SceneDescriptionResponse sceneListResponse, PlotListResponse plotListResponse) {
         List<Scene> sceneList = new ArrayList<>();
 
@@ -41,8 +42,9 @@ public class SceneService {
 
             sceneList.add(scene);
         }
-
-        return sceneRepository.saveAll(sceneList);
+        List<Scene> scenes = sceneRepository.saveAll(sceneList);
+        book.setSceneList(scenes);
+        return scenes;
 
     }
 

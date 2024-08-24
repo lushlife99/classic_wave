@@ -43,8 +43,6 @@ public class S3FileUploadService {
     private final static String Image_FILE_PREFIX = "image";
 
     public Resource getImage(String folderName, String fileName) {
-        System.out.println("folderName = " + folderName);
-        System.out.println("fileName = " + fileName);
         S3Object imageObject = amazonS3Client.getObject(new GetObjectRequest(bucket, folderName + "/" + fileName));
         byte[] bytes = new byte[0];
         try {

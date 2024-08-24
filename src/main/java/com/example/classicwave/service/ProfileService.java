@@ -29,8 +29,8 @@ public class ProfileService {
                 .orElseThrow(() -> new RuntimeException("잘못된 요청입니다."));
 
         // 프로필 이미지 URL이 null이 아닐 경우 이미지를 가져옴
-        Resource profileImageResource = member.getProfileImageUrl() != null
-                ? s3FileUploadService.getImage("folderName", member.getProfileImageUrl())
+        Resource profileImageResource = member.getImagename() != null
+                ? s3FileUploadService.getImage("user", member.getImagename())
                 : null;
 
         return new MemberDto(member.getName(), member.getIntroduction(), profileImageResource);
@@ -49,13 +49,12 @@ public class ProfileService {
         }
 
         if (profileImage != null && profileImage.contentLength() > 0) {
-            String imageUrl = s3FileUploadService.uploadProfileImage(profileImage);
-            member.setProfileImageUrl(imageUrl);
+            String imageUrl = s3FileUploadService.uploadProfileImage(profileImage,userId);
+            member.setImagename(imageUrl);
         }
 
         memberRepository.save(member);
 
-        Resource profileImageUrlResource = new InputStreamResource(new URL(member.getProfileImageUrl()).openStream());
-        return new MemberDto(member.getName(), member.getIntroduction(), profileImageUrlResource);
+        return new MemberDto(member.getName(), member.getIntroduction(),profileImage);
     }
 }

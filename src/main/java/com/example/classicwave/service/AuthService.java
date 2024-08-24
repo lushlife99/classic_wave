@@ -41,7 +41,7 @@ public class AuthService {
                 .roles(Collections.singletonList("ROLE_USER"))
                 .name(joinRequest.getName())
                 .password(encoder.encode(joinRequest.getPassword()))
-                .profileImageUrl(null)
+                .imagename(null)
                 .build();
         memberRepository.save(joinMember);
     }

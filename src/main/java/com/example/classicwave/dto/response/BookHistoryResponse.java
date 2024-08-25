@@ -7,6 +7,7 @@ import lombok.Data;
 @AllArgsConstructor
 public class BookHistoryResponse {
 
+    private Long bookId;
     private String bookTitle;
     private String author;
     private int publishedYear;

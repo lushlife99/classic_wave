@@ -22,6 +22,8 @@ public class SceneController {
     @GetMapping("/{sceneId}")
     @Operation(summary = "전자책을 이루는 한 장면 데이터 조회", description = "장면의 사진, 음성파일, 줄거리 조회")
     public SceneDto getCartoonFiles(@PathVariable Long sceneId) {
-        return sceneService.getScene(sceneId);
+        SceneDto scene = sceneService.getScene(sceneId);
+        System.out.println("SceneController.getCartoonFiles");
+        return scene;
     }
 }

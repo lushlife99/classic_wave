@@ -19,7 +19,7 @@ import java.util.stream.Collectors;
 public class LikeService {
 
     private final static String BOOK_LIKE_KEY_PREFIX = "like:book:"; // 책을 관심 등록 한 유저들을 찾는 key
-    private final static String MEMBER_LIKE_KEY = "like:member"; // 유저가 관심 등록 한 책의 id list를 찾는 key
+    private final static String MEMBER_LIKE_KEY_PREFIX = "like:member:"; // 유저가 관심 등록 한 책의 id list를 찾는 key
     private final static String SORTED_TOTAL_LIKES_KEY = "sorted:total_like";
     private final RedisTemplate<String, String> redisTemplate;
     private final MemberRepository memberRepository;
@@ -29,11 +29,11 @@ public class LikeService {
                 .orElseThrow(() -> new CustomException(ErrorCode.BAD_REQUEST));
 
         String bookLikeKey = BOOK_LIKE_KEY_PREFIX + bookId;
-
+        String memberLikeKey = MEMBER_LIKE_KEY_PREFIX + member.getId();
         double now = Instant.now().toEpochMilli();
 
         redisTemplate.opsForSet().add(bookLikeKey, member.getId().toString());
-        redisTemplate.opsForZSet().add(MEMBER_LIKE_KEY, bookId.toString(), now);
+        redisTemplate.opsForZSet().add(memberLikeKey, bookId.toString(), now);
         redisTemplate.opsForZSet().incrementScore(SORTED_TOTAL_LIKES_KEY, bookId.toString(), 1);
     }
 
@@ -41,7 +41,10 @@ public class LikeService {
         Member member = memberRepository.findByLogInId(authentication.getName())
                 .orElseThrow(() -> new CustomException(ErrorCode.BAD_REQUEST));
 
-        Set<String> likedBooks = redisTemplate.opsForZSet().range(MEMBER_LIKE_KEY, 0, -1);
+
+        String memberLikeKey = MEMBER_LIKE_KEY_PREFIX + member.getId();
+
+        Set<String> likedBooks = redisTemplate.opsForZSet().range(memberLikeKey, 0, -1);
         if (likedBooks == null) {
             return List.of();
         }
@@ -66,9 +69,10 @@ public class LikeService {
                 .orElseThrow(() -> new CustomException(ErrorCode.BAD_REQUEST));
 
         String bookLikeKey = BOOK_LIKE_KEY_PREFIX + bookId;
+        String memberLikeKey = MEMBER_LIKE_KEY_PREFIX + member.getId();
 
         redisTemplate.opsForSet().remove(bookLikeKey, member.getId().toString());
-        redisTemplate.opsForZSet().remove(MEMBER_LIKE_KEY, bookId.toString());
+        redisTemplate.opsForZSet().remove(memberLikeKey, bookId.toString());
         redisTemplate.opsForZSet().incrementScore(SORTED_TOTAL_LIKES_KEY, bookId.toString(), -1);
     }
 }

@@ -46,7 +46,7 @@ public class BookService {
     private final NaverBookClient naverBookClient;
     private final static String EBOOK_REQUEST_PREFIX = "ebookRequest";
     private final static String SORTED_TOTAL_LIKES_KEY = "sorted:total_like";
-    private final static String MEMBER_LIKE_KEY = "like:member"; // 유저가 관심 등록 한 책의 id list를 찾는 key
+    private final static String MEMBER_LIKE_KEY_PREFIX = "like:member:"; // 유저가 관심 등록 한 책의 id list를 찾는 key
     private final static int PAGE_SIZE = 10;
 
     public void postToScheduler(EBookRequest bookRequest) {
@@ -143,7 +143,7 @@ public class BookService {
     public Page<BookDto> searchLikedBookList(int page, Authentication authentication) {
         Pageable pageable = PageRequest.of(page, PAGE_SIZE);
         Member member = memberRepository.findByLogInId(authentication.getName()).orElseThrow(() -> new CustomException(ErrorCode.BAD_REQUEST));
-        String redisKey = MEMBER_LIKE_KEY;
+        String redisKey = MEMBER_LIKE_KEY_PREFIX + member.getId();
 
         int start = page * PAGE_SIZE;
         int end = start + PAGE_SIZE - 1;

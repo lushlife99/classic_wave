@@ -10,5 +10,5 @@ public class MemberDto {
 
     private String name;
     private String introduction;
-    private Resource profileImageUrl;
+    private String profileImageUrl;
 }

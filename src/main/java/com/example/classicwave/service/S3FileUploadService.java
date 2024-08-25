@@ -42,16 +42,9 @@ public class S3FileUploadService {
     private final static String AUDIO_FILE_PREFIX = "audio";
     private final static String Image_FILE_PREFIX = "image";
 
-    public Resource getImage(String folderName, String fileName) {
-        S3Object imageObject = amazonS3Client.getObject(new GetObjectRequest(bucket, folderName + "/" + fileName));
-        byte[] bytes = new byte[0];
-        try {
-            bytes = imageObject.getObjectContent().readAllBytes();
-        } catch (IOException e) {
-            throw new CustomException(ErrorCode.INTERNAL_SERVER_ERROR);
-        }
+    public String getImageUrl(String folderName, String fileName) {
 
-        return new ByteArrayResource(bytes);
+        return amazonS3Client.getUrl(bucket, folderName + "/" + fileName).toString();
     }
 
     public Resource getAudio(String folderName, String fileName) {
@@ -61,9 +54,9 @@ public class S3FileUploadService {
     }
 
     @Transactional(readOnly = true)
-    public Resource getBookThumbnail(Long bookId) {
+    public String getBookThumbnail(Long bookId) {
         Book book = bookRepository.findById(bookId).orElseThrow(() -> new CustomException(ErrorCode.BAD_REQUEST));
-        return getImage(book.getFolderName() + "/image", Image_FILE_PREFIX + "0.png");
+        return getImageUrl(book.getFolderName() + "/image", Image_FILE_PREFIX + "0.png");
     }
 
     public void uploadImages(List<Resource> imageResults, String folderName) throws IOException {

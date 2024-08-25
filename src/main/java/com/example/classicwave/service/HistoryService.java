@@ -37,6 +37,7 @@ public class HistoryService {
             if (quizList != null) {
                 Book book = quizList.getBook();
                 bookList.add(new BookHistoryResponse(
+                        book.getId(),
                         book.getName(),
                         book.getAuthorName(),
                         book.getPublishedYear(),

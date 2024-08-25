@@ -45,7 +45,7 @@ public class ProfileController {
 
     @PatchMapping
     @Operation(summary = "유저 프로필 업데이트", description = "사용자의 프로필 정보를 업데이트합니다.")
-    public ResponseEntity<MemberDto> updateUserProfile(
+    public MemberDto updateUserProfile(
             @RequestParam("name") String name,
             @RequestParam("introduction") String introduction,
             @RequestParam(value = "profileImage", required = false) MultipartFile profileImage) throws IOException {
@@ -64,7 +64,7 @@ public class ProfileController {
 
         MemberDto updatedProfile = profileService.updateProfile(member.getId(), name, introduction, resource);
 
-        return ResponseEntity.ok(updatedProfile);
+        return updatedProfile;
     }
 
 }

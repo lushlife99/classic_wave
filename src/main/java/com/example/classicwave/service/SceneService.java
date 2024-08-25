@@ -58,7 +58,7 @@ public class SceneService {
 
         return SceneDto.builder()
                 .id(scene.getId())
-                .imageUrl(imageUrl)
+                .imageUrl(s3Service.getImageUrl(book.getFolderName() + IMAGE_PREFIX, scene.getPhotoId()))
                 .plotSummary(scene.getPlotSummary())
                 .build();
     }

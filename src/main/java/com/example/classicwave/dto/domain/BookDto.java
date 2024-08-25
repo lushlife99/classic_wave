@@ -30,6 +30,7 @@ public class BookDto {
         this.id = book.getId();
         this.authorName = book.getAuthorName();
         this.name = book.getName();
+        this.
         sceneList = new ArrayList<>();
         for (Scene scene : book.getSceneList()) {
             this.sceneList.add(new SceneDto(scene));

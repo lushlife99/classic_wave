@@ -30,13 +30,11 @@ public class ProfileService {
                 .orElseThrow(() -> new RuntimeException("잘못된 요청입니다."));
 
         // 프로필 이미지 URL이 null이 아닐 경우 이미지를 가져옴
-        Resource profileImageResource = member.getImagename() != null
-                ? s3FileUploadService.getImage("user", member.getImagename())
+        String url = member.getImagename() != null
+                ? s3FileUploadService.getImageUrl("user", member.getImagename())
                 : null;
 
-        System.out.println("profileImageResource = " + profileImageResource.getContentAsByteArray());
-        System.out.println(2);
-        return new MemberDto(member.getName(), member.getIntroduction(), profileImageResource);
+        return new MemberDto(member.getName(), member.getIntroduction(), url);
     }
 
     @Transactional
@@ -58,6 +56,6 @@ public class ProfileService {
 
         memberRepository.save(member);
 
-        return new MemberDto(member.getName(), member.getIntroduction(),profileImage);
+        return new MemberDto(member.getName(), member.getIntroduction(), s3FileUploadService.getImageUrl("user", member.getImagename()));
     }
 }

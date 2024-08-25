@@ -15,7 +15,7 @@ import org.springframework.core.io.Resource;
 public class SceneDto {
 
     private Long id;
-    private Resource image;
+    private String imageUrl;
     private String plotSummary;
     private Resource audioFile;
 

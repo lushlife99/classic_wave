@@ -24,6 +24,7 @@ public class SceneService {
 
     private final SceneRepository sceneRepository;
     private final S3FileUploadService s3Service;
+    private static final String IMAGE_PREFIX = "/image";
 
     @Transactional
     public List<Scene> saveSceneList(Book book, SceneDescriptionResponse sceneListResponse, PlotListResponse plotListResponse) {
@@ -52,13 +53,12 @@ public class SceneService {
     public SceneDto getScene(Long sceneId) {
         Scene scene = sceneRepository.findById(sceneId).orElseThrow(() -> new CustomException(ErrorCode.BAD_REQUEST));
         Book book = scene.getBook();
-        Resource image = s3Service.getImage(book.getFolderName(), scene.getPhotoId());
-        Resource audio = s3Service.getAudio(book.getFolderName(), scene.getPhotoId());
+        String imageUrl = s3Service.getImageUrl(book.getFolderName() + IMAGE_PREFIX, scene.getPhotoId());
+//        Resource audio = s3Service.getAudio(book.getFolderName() + IMAGE_PREFIX, scene.getPhotoId());
 
         return SceneDto.builder()
                 .id(scene.getId())
-                .audioFile(audio)
-                .image(image)
+                .imageUrl(imageUrl)
                 .plotSummary(scene.getPlotSummary())
                 .build();
     }

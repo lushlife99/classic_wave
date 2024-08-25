@@ -22,7 +22,7 @@ public class BookDto {
     private String isbnId;
     private String authorName;
     private String name;
-    private String folderName;
+    private String thumbnailUrl;
     @Builder.Default
     private List<SceneDto> sceneList = new ArrayList<>();
 
@@ -30,7 +30,6 @@ public class BookDto {
         this.id = book.getId();
         this.authorName = book.getAuthorName();
         this.name = book.getName();
-        this.folderName = book.getFolderName();
         sceneList = new ArrayList<>();
         for (Scene scene : book.getSceneList()) {
             this.sceneList.add(new SceneDto(scene));

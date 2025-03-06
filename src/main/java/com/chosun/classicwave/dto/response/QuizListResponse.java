@@ -9,16 +9,9 @@ public record QuizListResponse(
 ) {
     public record QuestionResponse(
             @JsonProperty("question") String question,
-            @JsonProperty("options") Options options,
+            @JsonProperty("options") List<String> options,
             @JsonProperty("answer") String answer,
             @JsonProperty("comment") String comment
     ) {
-        public record Options(
-                @JsonProperty("1") String optionA,
-                @JsonProperty("2") String optionB,
-                @JsonProperty("3") String optionC,
-                @JsonProperty("4") String optionD
-        ) {
-        }
     }
 }

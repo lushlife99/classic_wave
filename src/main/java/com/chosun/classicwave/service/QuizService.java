@@ -23,7 +23,6 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
@@ -31,6 +30,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+/**
+ * Todo
+ * 1. 퀴즈 생성 시 오류를 명확히 반환
+ * 2. 퀴즈 생성할 때 오류 발생 시 후처리 생각
+ */
 @Slf4j
 @Service
 @RequiredArgsConstructor
@@ -39,7 +43,7 @@ public class QuizService {
     @Value("classpath:/prompts/quiz-generation-system-message.st")
     private Resource quizSystemPrompt;
     @Value("classpath:/prompts/book-info-user-message.st")
-    private Resource bookinfoUserPrompt;
+    private Resource bookInfoUserPrompt;
 
     private final OpenAiChatModel openAiChatModel;
     private final QuizRepository quizRepository;
@@ -49,43 +53,29 @@ public class QuizService {
     private final BookRepository bookRepository;
 
     @Transactional
-    public  QuizListWithIdResponse getQuizList(String title){
+    public QuizListWithIdResponse getQuizList(String title){
 
-        Book book = bookRepository.findByName(title)
-                .orElseThrow(() -> new RuntimeException("해당 책이 존재하지 않습니다.: " + title));
+        Book book = bookRepository.findByName(title).orElseThrow(() -> new CustomException(ErrorCode.BAD_REQUEST));
 
-        QuizList existingQuizList = quizListRepository.findByBook(book)
-                .orElse(null);
-        if(existingQuizList != null){
-            // 해당 책에 퀴즈가 존재한다면 해당 퀴즈 리스트를 반환
-            return returnExistQuizList(existingQuizList);
+        QuizList existingQuizList = quizListRepository.findByBook(book).orElse(null);
+        if(existingQuizList != null){ // 해당 책에 퀴즈가 존재한다면 해당 퀴즈 리스트를 반환
+            return getExistQuizList(existingQuizList);
         }
 
-        // 해당 책에 퀴즈가 존재하지 않는다면 퀴즈를 생성
-        return createAndSaveQuiz(title);
+        return createAndSaveQuiz(title); // 해당 책에 퀴즈가 존재하지 않는다면 퀴즈를 생성
     }
 
     // 기존 퀴즈 목록을 반환
-    @Transactional(propagation = Propagation.REQUIRES_NEW)
-    public QuizListWithIdResponse returnExistQuizList(QuizList quizList){
+    @Transactional
+    public QuizListWithIdResponse getExistQuizList(QuizList quizList){
         List<QuizListResponse.QuestionResponse> questions = quizList.getQuizzes().stream()
                 .map(quiz -> {
                     List<String> options = quiz.getOptionList();
                     // 정답 번호를 문자열로 반환
                     String answerOption = String.valueOf(quiz.getAnswer()); // 0-based index to 1-based
-
-                    // 옵션을 Options 객체로 변환
-                    QuizListResponse.QuestionResponse.Options optionsObj = new QuizListResponse.QuestionResponse.Options(
-                            options.size() > 0 ? options.get(0) : null,
-                            options.size() > 1 ? options.get(1) : null,
-                            options.size() > 2 ? options.get(2) : null,
-                            options.size() > 3 ? options.get(3) : null
-
-                    );
-
                     return new QuizListResponse.QuestionResponse(
                             quiz.getQuestion(),
-                            optionsObj,
+                            options,
                             answerOption, // 정답 번호를 문자열로 반환
                             quiz.getComment()
                     );
@@ -107,7 +97,6 @@ public class QuizService {
                 OpenAiChatOptions.builder()
                         .withMaxTokens(4096)
                         .build());
-        log.info(String.valueOf(prompt));
         Generation result = openAiChatModel.call(prompt).getResult();
         QuizListResponse quizListResponse = outputConverter.convert(result.getOutput().getContent());
         
@@ -115,47 +104,25 @@ public class QuizService {
     }
 
     private PromptTemplate getUserPrompt(String title,  String format){
-        PromptTemplate promptTemplate = new PromptTemplate(bookinfoUserPrompt, Map.of("title", title,"format", format));
+        PromptTemplate promptTemplate = new PromptTemplate(bookInfoUserPrompt, Map.of("title", title,"format", format));
         return promptTemplate;
     }
 
     // 퀴즈 생성과 저장
-
     public QuizListWithIdResponse createAndSaveQuiz(String title) {
 
-        Book book = bookRepository.findByName(title)
-                .orElseThrow(() -> new RuntimeException("해당 책이 존재하지 않습니다.: " + title));
-
+        Book book = bookRepository.findByName(title).orElseThrow(() -> new RuntimeException("해당 책이 존재하지 않습니다.: " + title));
         QuizListResponse quizListResponse = createQuiz(title);
 
-        QuizList quizList = new QuizList();
-        quizList.setBook(book);
-
+        QuizList quizList = QuizList.from(book);
         quizListRepository.save(quizList);
 
         for (QuizListResponse.QuestionResponse questionResponse : quizListResponse.questions()) {
-            Quiz quiz = new Quiz();
-            quiz.setQuestion(questionResponse.question());
-            quiz.setAnswer(parseAnswer(questionResponse.answer()));
-            quiz.setComment(questionResponse.comment());
-            quiz.setQuizList(quizList);
-
-            List<String> optionList = new ArrayList<>();
-            optionList.add(questionResponse.options().optionA());
-            optionList.add(questionResponse.options().optionB());
-            optionList.add(questionResponse.options().optionC());
-            optionList.add(questionResponse.options().optionD());
-
-            quiz.setOptionList(optionList);
-
+            Quiz quiz = Quiz.from(questionResponse, quizList, questionResponse.options(), parseAnswer(questionResponse.answer()));
             quizRepository.save(quiz);
         }
 
         return new QuizListWithIdResponse(quizList.getId(), quizListResponse.questions());
-    }
-
-    private int parseAnswer(String answer) {
-        return Integer.parseInt(answer.split(":")[0].trim());
     }
 
 
@@ -228,6 +195,10 @@ public class QuizService {
             quiz.setCorrectCount(quiz.getCorrectCount() + score);
         }
         quizRepository.save(quiz);
+    }
+
+    private int parseAnswer(String answer) {
+        return Integer.parseInt(answer.split(":")[0].trim());
     }
 }
 

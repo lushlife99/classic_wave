@@ -1,5 +1,6 @@
 package com.chosun.classicwave.domain;
 
+import com.chosun.classicwave.dto.response.QuizListResponse;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -9,8 +10,6 @@ import java.util.List;
 @Entity
 @Data
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@AllArgsConstructor
-@Builder
 public class Quiz {
 
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -20,7 +19,6 @@ public class Quiz {
     private String question;
 
     @ElementCollection
-    @Builder.Default
     private List<String> optionList = new ArrayList<>();
 
     private int answer;
@@ -32,6 +30,29 @@ public class Quiz {
 
     private int submitCount;
     private int correctCount;
+
+    @Builder
+    public Quiz(QuizList quizList, String question, List<String> optionList, int answer, String comment) {
+        this.question = question;
+        this.optionList = optionList;
+        this.answer = answer;
+        this.comment = comment;
+        this.quizList = quizList;
+    }
+
+    public static Quiz from(QuizListResponse.QuestionResponse questionResponse, QuizList quizList, List<String> optionList, int answer) {
+        return Quiz.builder()
+                .question(questionResponse.question())
+                .optionList(optionList)
+                .answer(answer)
+                .comment(questionResponse.comment())
+                .quizList(quizList)
+                .build();
+    }
+
+    public void plusSubmitCount() {
+        this.submitCount++;
+    }
 
     public double calculateAccuracy() {
         if (submitCount == 0) {

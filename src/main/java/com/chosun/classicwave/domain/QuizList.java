@@ -8,8 +8,6 @@ import java.util.List;
 @Entity
 @Data
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@AllArgsConstructor
-@Builder
 public class QuizList {
 
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -24,6 +22,15 @@ public class QuizList {
     @OneToMany(mappedBy = "quizList", cascade = CascadeType.ALL)
     private List<QuizSubmit> submitList;
 
+    @Builder
+    public QuizList(Book book) {
+        this.book = book;
+    }
 
+    public static QuizList from(Book book) {
+        return QuizList.builder()
+                .book(book)
+                .build();
+    }
 
 }

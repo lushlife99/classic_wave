@@ -11,5 +11,5 @@ public class BookHistoryResponse {
     private String bookTitle;
     private String author;
     private int publishedYear;
-    private Long quizsubmitId;
+    private Long quizSubmitId;
 }

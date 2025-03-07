@@ -16,18 +16,13 @@ public class GlobalExHandler extends ResponseEntityExceptionHandler {
 
     @ExceptionHandler(value = { CustomException.class })
     protected ResponseEntity<ErrorResponse> handleHttpCustomException(CustomException e) {
-        log.error("handleHttpCustomException throw CustomException : {}", e.getErrorCode());
+        log.error("CustomException : {}", e.getErrorCode());
         return ErrorResponse.toResponseEntity(e.getErrorCode());
-    }
-
-    @ExceptionHandler(value = {DataIntegrityViolationException.class})
-    protected ResponseEntity<String> handleHttpCustomException(DataIntegrityViolationException e) {
-        return new ResponseEntity<>("quiz ", HttpStatus.CONFLICT);
     }
 
     @ExceptionHandler(Exception.class)
     public ResponseEntity<String> handleException(Exception e) {
-        e.printStackTrace();
+        log.error("CustomException : {}", e.getMessage());
         return new ResponseEntity<>("Internal Server Error", HttpStatus.INTERNAL_SERVER_ERROR);
     }
 }

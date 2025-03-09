@@ -1,6 +1,7 @@
 package com.chosun.classicwave.service;
 
-import com.chosun.classicwave.domain.*;
+import com.chosun.classicwave.entity.*;
+import com.chosun.classicwave.dto.response.QuestionResponse;
 import com.chosun.classicwave.repository.*;
 import com.chosun.classicwave.dto.response.QuizListResponse;
 import com.chosun.classicwave.dto.response.QuizListWithIdResponse;
@@ -18,10 +19,6 @@ import org.springframework.ai.openai.OpenAiChatModel;
 import org.springframework.ai.openai.OpenAiChatOptions;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.Resource;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -62,21 +59,19 @@ public class QuizService {
             return getExistQuizList(existingQuizList);
         }
 
-        return createAndSaveQuiz(title); // 해당 책에 퀴즈가 존재하지 않는다면 퀴즈를 생성
+        return createAndSaveQuiz(title); // 해당 책에 퀴즈가 존재하지 않는다면 퀴즈를 생성한 뒤 반환
     }
 
     // 기존 퀴즈 목록을 반환
     @Transactional
     public QuizListWithIdResponse getExistQuizList(QuizList quizList){
-        List<QuizListResponse.QuestionResponse> questions = quizList.getQuizzes().stream()
+        List<QuestionResponse> questions = quizList.getQuizzes().stream()
                 .map(quiz -> {
                     List<String> options = quiz.getOptionList();
-                    // 정답 번호를 문자열로 반환
-                    String answerOption = String.valueOf(quiz.getAnswer()); // 0-based index to 1-based
-                    return new QuizListResponse.QuestionResponse(
+                    return new QuestionResponse(
                             quiz.getQuestion(),
                             options,
-                            answerOption, // 정답 번호를 문자열로 반환
+                            String.valueOf(quiz.getAnswer()),
                             quiz.getComment()
                     );
                 })
@@ -87,7 +82,7 @@ public class QuizService {
 
 
     // 퀴즈 생성
-
+    @Transactional
     public QuizListResponse createQuiz(String title){
 
         BeanOutputConverter<QuizListResponse> outputConverter = new BeanOutputConverter<>(QuizListResponse.class);
@@ -109,6 +104,7 @@ public class QuizService {
     }
 
     // 퀴즈 생성과 저장
+    @Transactional
     public QuizListWithIdResponse createAndSaveQuiz(String title) {
 
         Book book = bookRepository.findByName(title).orElseThrow(() -> new RuntimeException("해당 책이 존재하지 않습니다.: " + title));
@@ -117,8 +113,9 @@ public class QuizService {
         QuizList quizList = QuizList.from(book);
         quizListRepository.save(quizList);
 
-        for (QuizListResponse.QuestionResponse questionResponse : quizListResponse.questions()) {
-            Quiz quiz = Quiz.from(questionResponse, quizList, questionResponse.options(), parseAnswer(questionResponse.answer()));
+        for (QuestionResponse questionResponse : quizListResponse.questions()) {
+            Quiz quiz = new Quiz(quizList, questionResponse.question(), questionResponse.options(),
+                    parseAnswer(questionResponse.answer()), questionResponse.comment());
             quizRepository.save(quiz);
         }
 
@@ -126,12 +123,33 @@ public class QuizService {
     }
 
 
+    /**
+     * 나중에 지우기. 메모용
+     *
+     * 퀴즈 제출 채점
+     * 1. 퀴즈리스트 조회
+     * 2. 퀴즈 조회
+     * 3. 점수 채점
+     * 4. 회원 총 점수 증가
+     * 5. 퀴즈 제출 저장
+     * 6. 퀴즈에 제출, 정답 횟수 증가
+     *
+     * 일단 5~6 순서를 변경해야할듯.
+     * 4번에서 setter 쓰지 않기
+     * 함수 쪼개기
+     * 트랜잭션 분리
+     *
+     * @param quizListId
+     * @param userAnswers
+     * @param userId
+     * @return
+     */
 
     // 퀴즈 제출 후 채점
-    public QuizSubmitResponse submitQuiz(Long quizListId, List<Integer> userAnswers){
+    @Transactional
+    public QuizSubmitResponse submitQuiz(Long quizListId, List<Integer> userAnswers, long userId){ // 함수 너무 긺. 리팩토링
 
-        QuizList quizList = quizListRepository.findById(quizListId)
-                .orElseThrow(()-> new CustomException(ErrorCode.BAD_REQUEST));
+        QuizList quizList = quizListRepository.findById(quizListId).orElseThrow(()-> new CustomException(ErrorCode.BAD_REQUEST));
 
         List<Quiz> quizzes = quizRepository.findByQuizList(quizList);
         List<Integer> correctAnswers = new ArrayList<>();
@@ -140,19 +158,11 @@ public class QuizService {
         }
 
         int score = calculateScore(userAnswers,correctAnswers);
-
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        UserDetails userDetails = (UserDetails) authentication.getPrincipal();
-
-        Member currentMember = memberRepository.findByLogInId(userDetails.getUsername())
-                .orElseThrow(() -> new UsernameNotFoundException("사용자를 찾을 수 없습니다."));
-
-        currentMember.setRating(currentMember.getRating() + score); // 점수 추가
-        memberRepository.save(currentMember);
-
+        Member member = memberRepository.findById(userId).orElseThrow(() -> new CustomException(ErrorCode.BAD_REQUEST));
+        member.plusRating(score);
 
         QuizSubmit quizSubmit = QuizSubmit.builder()
-                .member(currentMember)
+                .member(member)
                 .quizList(quizList)
                 .submitAnswerList(userAnswers)
                 .score(score)
@@ -162,11 +172,10 @@ public class QuizService {
 
         for (int i = 0; i < quizzes.size(); i++) {
             Quiz quiz = quizzes.get(i);
-            quiz.setSubmitCount(quiz.getSubmitCount() + 1); // 제출 횟수 증가
+            quiz.plusSubmitCount(); // 제출 횟수 증가
             if (userAnswers.get(i).equals(quiz.getAnswer())) {
-                quiz.setCorrectCount(quiz.getCorrectCount() + 1); // 정답 횟수 증가
+                quiz.plusCorrectCount(); //정답 횟수 증가
             }
-            quizRepository.save(quiz); // 퀴즈 업데이트
         }
 
         return new QuizSubmitResponse(score);
@@ -175,12 +184,12 @@ public class QuizService {
     // 점수 계산
     private int calculateScore(List<Integer> userAnswers, List<Integer> correctAnswers){
         if(userAnswers.size()!= correctAnswers.size()){
-            throw new IllegalArgumentException("제출된 답안의 갯수가 일치하지 않습니다.");
+            throw new CustomException(ErrorCode.BAD_REQUEST);
         }
 
         int correctCount =0;
 
-        for(int i=0;i<userAnswers.size(); i++){
+        for(int i = 0; i < userAnswers.size(); i++){
             if(userAnswers.get(i).equals(correctAnswers.get(i))){
                 correctCount++;
             }

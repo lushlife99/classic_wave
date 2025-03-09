@@ -1,4 +1,4 @@
-package com.chosun.classicwave.domain;
+package com.chosun.classicwave.entity;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
@@ -7,12 +7,11 @@ import lombok.*;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 @Entity
-@Data
+@Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@AllArgsConstructor
-@Builder
 public class Book {
 
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -24,18 +23,22 @@ public class Book {
     @NotNull
     private String folderName;
 
-    //발행 년도 추가
     private int publishedYear;
 
     @OneToMany(mappedBy = "book", cascade = CascadeType.ALL)
     @OrderColumn(name = "scene_order")
-    @Builder.Default
     private List<Scene> sceneList = new ArrayList<>();
 
     private LocalDateTime createdTime;
 
-    @PrePersist
-    protected void onCreate() {
+    @Builder
+    public Book(String authorName, String name, String folderName, int publishedYear, List<Scene> sceneList) {
+        this.authorName = authorName;
+        this.name = name;
+        this.folderName = folderName != null ? folderName : UUID.randomUUID().toString();
+        this.publishedYear = publishedYear;
+        this.sceneList = sceneList != null ? sceneList : new ArrayList<>();
         this.createdTime = LocalDateTime.now();
     }
+
 }

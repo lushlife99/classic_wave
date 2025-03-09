@@ -4,7 +4,7 @@ import com.amazonaws.services.s3.AmazonS3Client;
 import com.amazonaws.services.s3.model.GetObjectRequest;
 import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.amazonaws.services.s3.model.S3Object;
-import com.chosun.classicwave.domain.Book;
+import com.chosun.classicwave.entity.Book;
 import com.chosun.classicwave.error.CustomException;
 import com.chosun.classicwave.error.ErrorCode;
 import com.chosun.classicwave.repository.BookRepository;

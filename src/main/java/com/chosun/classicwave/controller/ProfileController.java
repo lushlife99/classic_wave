@@ -1,6 +1,6 @@
 package com.chosun.classicwave.controller;
 
-import com.chosun.classicwave.domain.Member;
+import com.chosun.classicwave.entity.Member;
 import com.chosun.classicwave.dto.domain.MemberDto;
 import com.chosun.classicwave.repository.MemberRepository;
 import com.chosun.classicwave.service.ProfileService;

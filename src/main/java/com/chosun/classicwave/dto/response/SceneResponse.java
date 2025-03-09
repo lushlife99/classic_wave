@@ -1,7 +1,7 @@
 package com.chosun.classicwave.dto.response;
 
-import com.chosun.classicwave.domain.Book;
-import com.chosun.classicwave.domain.Scene;
+import com.chosun.classicwave.entity.Book;
+import com.chosun.classicwave.entity.Scene;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import java.util.UUID;

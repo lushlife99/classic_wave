@@ -1,13 +1,13 @@
-package com.chosun.classicwave.domain;
+package com.chosun.classicwave.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
 
 @Entity
-@Data
+@Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@AllArgsConstructor
 @Builder
+@AllArgsConstructor
 public class Scene {
 
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)

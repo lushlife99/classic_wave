@@ -1,14 +1,13 @@
 package com.chosun.classicwave.service;
 
-import com.chosun.classicwave.domain.Book;
-import com.chosun.classicwave.domain.Quiz;
-import com.chosun.classicwave.domain.QuizList;
-import com.chosun.classicwave.domain.QuizSubmit;
+import com.chosun.classicwave.entity.Book;
+import com.chosun.classicwave.entity.Quiz;
+import com.chosun.classicwave.entity.QuizList;
+import com.chosun.classicwave.entity.QuizSubmit;
 import com.chosun.classicwave.dto.response.BookHistoryResponse;
 import com.chosun.classicwave.dto.response.QuizHistoryResponse;
 import com.chosun.classicwave.dto.response.QuizSubmitHistoryResponse;
 import com.chosun.classicwave.repository.QuizSubmitRepository;
-import com.example.classicwave.repository.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;

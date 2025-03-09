@@ -1,6 +1,6 @@
 package com.chosun.classicwave.dto.request;
 
-import com.chosun.classicwave.domain.Book;
+import com.chosun.classicwave.entity.Book;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -23,4 +23,5 @@ public class EBookRequest {
                 .sceneList(new ArrayList<>())
                 .build();
     }
+
 }

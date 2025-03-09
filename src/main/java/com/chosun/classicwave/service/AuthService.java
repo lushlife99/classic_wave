@@ -1,6 +1,6 @@
 package com.chosun.classicwave.service;
 
-import com.chosun.classicwave.domain.Member;
+import com.chosun.classicwave.entity.Member;
 import com.chosun.classicwave.dto.request.AuthRequest;
 import com.chosun.classicwave.error.CustomException;
 import com.chosun.classicwave.error.ErrorCode;

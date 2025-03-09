@@ -1,6 +1,6 @@
 package com.chosun.classicwave.repository;
 
-import com.chosun.classicwave.domain.Member;
+import com.chosun.classicwave.entity.Member;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.Optional;

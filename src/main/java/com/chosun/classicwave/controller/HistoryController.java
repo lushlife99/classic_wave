@@ -1,6 +1,6 @@
 package com.chosun.classicwave.controller;
 
-import com.chosun.classicwave.domain.Member;
+import com.chosun.classicwave.entity.Member;
 import com.chosun.classicwave.dto.response.BookHistoryResponse;
 import com.chosun.classicwave.dto.response.QuizSubmitHistoryResponse;
 import com.chosun.classicwave.repository.MemberRepository;

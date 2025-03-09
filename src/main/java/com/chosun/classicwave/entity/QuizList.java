@@ -1,12 +1,13 @@
-package com.chosun.classicwave.domain;
+package com.chosun.classicwave.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
-@Data
+@Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class QuizList {
 
@@ -23,8 +24,10 @@ public class QuizList {
     private List<QuizSubmit> submitList;
 
     @Builder
-    public QuizList(Book book) {
+    public QuizList(Book book, List<Quiz> quizzes, List<QuizSubmit> submitList) {
         this.book = book;
+        this.quizzes = quizzes == null ? new ArrayList<Quiz>() : quizzes;
+        this.submitList = submitList == null ? new ArrayList<>() : submitList;
     }
 
     public static QuizList from(Book book) {

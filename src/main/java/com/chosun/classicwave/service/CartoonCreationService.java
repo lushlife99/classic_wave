@@ -1,6 +1,6 @@
 package com.chosun.classicwave.service;
 
-import com.chosun.classicwave.domain.Book;
+import com.chosun.classicwave.entity.Book;
 import com.chosun.classicwave.dto.request.EBookRequest;
 import com.chosun.classicwave.dto.response.PlotListResponse;
 import com.chosun.classicwave.dto.response.SceneDescriptionResponse;
@@ -52,12 +52,9 @@ public class CartoonCreationService {
 
     private final StabilityAiClient stabilityAiClient;
     private final BookRepository bookRepository;
-    private final BookService bookService;
     private final S3FileUploadService s3Service;
-    private final GutenbergApiClient gutenbergApiClient;
     private final SceneService sceneService;
     private final OpenAiAudioSpeechModel audioSpeechModel;
-    private final StabilityAiImageModel imageModel;
     private final OpenAiChatModel openAiChatModel;
     private final RedisTemplate<String, EBookRequest> redisTemplate;
 
@@ -67,19 +64,13 @@ public class CartoonCreationService {
         Optional<Book> optionalBook = bookRepository.findByName(bookRequest.getName());
 
         if (optionalBook.isEmpty()) {
-
             PlotListResponse plotListResponse = getPlotListAndBookInfo(bookRequest);
             SceneDescriptionResponse sceneDescriptions = getSceneDescriptions(plotListResponse);
-            Book book = bookRequest.toEntity();
-            book.setAuthorName(plotListResponse.author());
-            book.setPublishedYear(plotListResponse.pubYear());
 
-            bookRepository.save(book);
-            sceneService.saveSceneList(book, sceneDescriptions, plotListResponse);
-
+            Book book = saveBookAndScenes(bookRequest, plotListResponse, sceneDescriptions);
             List<Resource> images = generateImages(sceneDescriptions);
-            s3Service.uploadImages(images, book.getFolderName() + IMAGE_PREFIX);
 
+            s3Service.uploadImages(images, book.getFolderName() + IMAGE_PREFIX);
         }
     }
 
@@ -154,12 +145,24 @@ public class CartoonCreationService {
         return new PromptTemplate(sceneDescriptionUserPrompt, Map.of("summary", stringBuilder.toString(), "format", format));
     }
 
+    public Resource imageGenerate(String prompt) {
+        return stabilityAiClient.generateImage(prompt, "comic-book");
+    }
+
     private PromptTemplate getUserPrompt(String title, String format) {
         return new PromptTemplate(sceneUserPrompt, Map.of("title", title, "format", format));
     }
 
-    public Resource imageGenerate(String prompt) {
+    private Book saveBookAndScenes(EBookRequest bookRequest, PlotListResponse plotListResponse, SceneDescriptionResponse sceneDescriptions) {
+        Book book = Book.builder()
+                .name(bookRequest.getName())
+                .authorName(plotListResponse.author())
+                .publishedYear(plotListResponse.pubYear())
+                .build();
 
-        return stabilityAiClient.generateImage(prompt, "comic-book");
+        bookRepository.save(book);
+        sceneService.saveSceneList(book, sceneDescriptions, plotListResponse);
+        return book;
     }
+
 }

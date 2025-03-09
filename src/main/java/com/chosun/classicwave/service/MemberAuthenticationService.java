@@ -1,7 +1,7 @@
 package com.chosun.classicwave.service;
 
 
-import com.chosun.classicwave.domain.Member;
+import com.chosun.classicwave.entity.Member;
 import com.chosun.classicwave.repository.MemberRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.userdetails.UserDetails;

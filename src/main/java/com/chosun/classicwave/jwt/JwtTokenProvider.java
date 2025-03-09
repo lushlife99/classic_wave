@@ -1,7 +1,6 @@
 package com.chosun.classicwave.jwt;
 
 import com.chosun.classicwave.repository.MemberRepository;
-import com.chosun.classicwave.domain.Member;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
@@ -23,7 +22,6 @@ import java.security.Key;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Date;
-import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 

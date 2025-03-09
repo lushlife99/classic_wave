@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.security.Principal;
 import java.util.List;
 
 
@@ -38,10 +39,10 @@ public class QuizController {
 
     @PostMapping("/submit")
     @Operation(summary = "퀴즈 제출 및 채점", description = "사용자가 제출한 답을 바탕으로 답을 채점 후 점수를 반환")
-    public ResponseEntity<QuizSubmitResponse> submitQuiz(@RequestBody QuizSubmitRequest quizSubmitRequest){
+    public ResponseEntity<QuizSubmitResponse> submitQuiz(@RequestBody QuizSubmitRequest quizSubmitRequest, Principal principal){
         Long quizListId = quizSubmitRequest.getQuizListId();
         List<Integer> userAnswers = quizSubmitRequest.getUserAnswers();
-        QuizSubmitResponse quizSubmitResponse = quizService.submitQuiz(quizListId,userAnswers);
+        QuizSubmitResponse quizSubmitResponse = quizService.submitQuiz(quizListId,userAnswers, Long.parseLong(principal.getName()));
 
         return ResponseEntity.ok(quizSubmitResponse);
     }

@@ -1,6 +1,6 @@
 package com.chosun.classicwave.dto.domain;
 
-import com.chosun.classicwave.domain.Scene;
+import com.chosun.classicwave.entity.Scene;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;

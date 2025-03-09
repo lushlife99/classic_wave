@@ -1,6 +1,6 @@
-package com.chosun.classicwave.domain;
+package com.chosun.classicwave.entity;
 
-import com.chosun.classicwave.dto.response.QuizListResponse;
+import com.chosun.classicwave.dto.response.QuestionResponse;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -19,7 +19,7 @@ public class Quiz {
     private String question;
 
     @ElementCollection
-    private List<String> optionList = new ArrayList<>();
+    private List<String> optionList;
 
     private int answer;
 
@@ -34,24 +34,19 @@ public class Quiz {
     @Builder
     public Quiz(QuizList quizList, String question, List<String> optionList, int answer, String comment) {
         this.question = question;
-        this.optionList = optionList;
+        this.optionList = optionList == null ? new ArrayList<>() : optionList;
         this.answer = answer;
         this.comment = comment;
         this.quizList = quizList;
     }
 
-    public static Quiz from(QuizListResponse.QuestionResponse questionResponse, QuizList quizList, List<String> optionList, int answer) {
-        return Quiz.builder()
-                .question(questionResponse.question())
-                .optionList(optionList)
-                .answer(answer)
-                .comment(questionResponse.comment())
-                .quizList(quizList)
-                .build();
-    }
 
     public void plusSubmitCount() {
         this.submitCount++;
+    }
+
+    public void plusCorrectCount() {
+        this.correctCount++;
     }
 
     public double calculateAccuracy() {

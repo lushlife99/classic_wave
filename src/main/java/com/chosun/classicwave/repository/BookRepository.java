@@ -1,6 +1,6 @@
 package com.chosun.classicwave.repository;
 
-import com.chosun.classicwave.domain.Book;
+import com.chosun.classicwave.entity.Book;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;

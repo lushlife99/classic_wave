@@ -1,7 +1,7 @@
 package com.chosun.classicwave.service;
 
-import com.chosun.classicwave.domain.Book;
-import com.chosun.classicwave.domain.Scene;
+import com.chosun.classicwave.entity.Book;
+import com.chosun.classicwave.entity.Scene;
 import com.chosun.classicwave.dto.domain.SceneDto;
 import com.chosun.classicwave.dto.response.PlotListResponse;
 import com.chosun.classicwave.dto.response.SceneDescriptionResponse;
@@ -42,7 +42,6 @@ public class SceneService {
             sceneList.add(scene);
         }
         List<Scene> scenes = sceneRepository.saveAll(sceneList);
-        book.setSceneList(scenes);
         return scenes;
 
     }
@@ -52,12 +51,11 @@ public class SceneService {
         Scene scene = sceneRepository.findById(sceneId).orElseThrow(() -> new CustomException(ErrorCode.BAD_REQUEST));
         Book book = scene.getBook();
         String imageUrl = s3Service.getImageUrl(book.getFolderName() + IMAGE_PREFIX, scene.getPhotoId());
-//        Resource audio = s3Service.getAudio(book.getFolderName() + IMAGE_PREFIX, scene.getPhotoId());
 
         return SceneDto.builder()
                 .id(scene.getId())
-                .imageUrl(s3Service.getImageUrl(book.getFolderName() + IMAGE_PREFIX, scene.getPhotoId()))
+                .imageUrl(imageUrl)
                 .plotSummary(scene.getPlotSummary())
                 .build();
+        }
     }
-}

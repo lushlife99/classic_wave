@@ -1,4 +1,4 @@
-package com.chosun.classicwave.domain;
+package com.chosun.classicwave.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
@@ -12,10 +12,10 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @Entity
-@Data
+@Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@AllArgsConstructor
 @Builder
+@AllArgsConstructor
 public class Member implements UserDetails {
 
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -26,18 +26,21 @@ public class Member implements UserDetails {
 
     private String password;
 
+    @Setter
     private String name;
 
+    @Setter
     private String introduction;
 
+    @Setter
     private String imageName;
 
     private int rating;
 
-    @OneToMany(mappedBy = "member") @Builder.Default
+    @OneToMany(mappedBy = "member")
     private List<QuizSubmit> quizSubmitList = new ArrayList<>();
 
-    @ElementCollection(fetch = FetchType.EAGER) @Builder.Default
+    @ElementCollection
     private List<String> roles = new ArrayList<>();
 
     @Override
@@ -75,5 +78,9 @@ public class Member implements UserDetails {
     @Override
     public boolean isEnabled() {
         return true;
+    }
+
+    public void plusRating(int rating) {
+        this.rating += rating;
     }
 }

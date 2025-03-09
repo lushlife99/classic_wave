@@ -7,11 +7,4 @@ import java.util.List;
 public record QuizListResponse(
         @JsonProperty("quiz") List<QuestionResponse> questions
 ) {
-    public record QuestionResponse(
-            @JsonProperty("question") String question,
-            @JsonProperty("options") List<String> options,
-            @JsonProperty("answer") String answer,
-            @JsonProperty("comment") String comment
-    ) {
-    }
 }
